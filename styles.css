@@ -1,0 +1,16 @@
+/* Apply the Inter font */
+body {
+    font-family: 'Inter', sans-serif;
+}
+/* Custom gradient for the hero */
+.hero-gradient {
+    background: linear-gradient(90deg, #dcfce7 0%, #dbeafe 100%);
+}
+/* A subtle glow for the live indicator */
+.live-dot {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .5; }
+}
