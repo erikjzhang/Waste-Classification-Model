@@ -106,6 +106,10 @@ function setupScrollSpy() {
     const sideNav = document.querySelector('.side-nav');
     if (!sideNav) return;
 
+    // Clear previous state just in case
+    sections.length = 0; 
+    navLinks.clear();
+
     sideNav.querySelectorAll('.side-nav-link').forEach(link => {
         const sectionId = link.dataset.section;
         const section = document.getElementById(sectionId);
@@ -114,21 +118,35 @@ function setupScrollSpy() {
             navLinks.set(section, link);
         }
     });
+
+    // Ensure sections are sorted by their position in the document
+    sections.sort((a, b) => a.offsetTop - b.offsetTop);
 }
 
 function handleSideNavActiveState() {
     if (sections.length === 0) return;
 
-    let currentSection = sections[0];
-    const headerOffset = 100;
+    let currentSection = null;
+    // A slightly smaller offset can prevent 'flashing' between sections
+    // or when the scroll is near the top of the section.
+    const headerOffset = 80; 
 
-    for (const section of sections) {
-        const sectionTop = section.offsetTop;
-        if (window.scrollY >= sectionTop - headerOffset) {
+    // Find the section that is currently in view (or just above the offset)
+    for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i];
+        if (window.scrollY >= section.offsetTop - headerOffset) {
             currentSection = section;
+            break; // Found the lowest section that's been scrolled past
         }
     }
 
+    // If no section is past the offset (i.e., we are at the very top of the page), 
+    // the first section should be active if it exists.
+    if (!currentSection && sections.length > 0) {
+        currentSection = sections[0];
+    }
+
+    // Apply the active class
     navLinks.forEach((link, section) => {
         if (section === currentSection) {
             link.classList.add('active');
