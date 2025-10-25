@@ -1,25 +1,13 @@
-/* --- Color Palette & Root Variables --- */
+/* --- Dark/Immersive Color Palette --- */
 :root {
-    /* New Coolors Palette */
-    --light-green-1: #d9ed92;
-    --light-green-2: #b5e48c;
-    --mid-green-1: #99d98c;
-    --mid-green-2: #76c893;
-    --teal-green-1: #52b69a;
-    --teal-1: #34a0a4;
-    --blue-1: #168aad;
-    --blue-2: #1a759f;
-    --dark-blue-1: #1e6091;
-    --dark-blue-2: #184e77;
-
-    /* Theme Colors mapped to the new palette */
-    --color-dark-blue: var(--dark-blue-2); /* Was #007f5f, now #184e77 */
-    --color-green: var(--teal-green-1);     /* Was #2b9348, now #52b69a */
-    --color-light-green: var(--mid-green-2);/* Was #55a630, now #76c893 */
-    --color-pale-green: var(--light-green-2); /* Was #bfd200, now #b5e48c */
-    --color-cream: var(--light-green-1);    /* Was #eeef20, now #d9ed92 */
-    --color-white: #FFFFFF; /* Kept from your file for cards/header */
-
+    --color-dark-blue: #0a192f;     /* Main background */
+    --color-light-blue: #112240;    /* Lighter background (for sections, cards) */
+    --color-accent-cyan: #64ffda;  /* Bright accent */
+    --color-accent-teal: #00c2cb;   /* Secondary accent */
+    --color-text-light: #ccd6f6;    /* Main light text */
+    --color-text-dark: #8892b0;     /* Subdued text */
+    --color-white: #FFFFFF;         /* Pure white for stats */
+    
     --font-main: 'Space Grotesk', sans-serif;
 }
 
@@ -30,16 +18,33 @@
     padding: 0;
 }
 
-/* ADDED FOR SMOOTH SCROLL OFFSET */
 html {
-    scroll-padding-top: 80px; /* Adjust this to match your header height */
+    scroll-padding-top: 80px;
 }
 
 body {
     font-family: var(--font-main);
-    background-color: var(--color-cream);
-    color: var(--color-dark-blue);
+    background-color: var(--color-dark-blue);
+    color: var(--color-text-dark);
     line-height: 1.6;
+}
+
+/* --- NEW: 3D Canvas Styling --- */
+#bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 1; /* Sits behind content */
+}
+
+/* --- Main Content Stacking --- */
+main {
+    position: relative;
+    z-index: 10; /* Sits in front of the canvas */
+    width: 100%;
+    overflow-x: hidden; /* Prevents horizontal scroll */
 }
 
 /* --- Utility Classes --- */
@@ -54,24 +59,25 @@ body {
     font-weight: 700;
     text-align: center;
     margin-bottom: 3rem;
-    color: var(--color-dark-blue);
+    color: var(--color-text-light);
 }
 
-/* --- Header --- */
+/* --- Header (Glassmorphism) --- */
 .header {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 1000;
+    z-index: 1000; /* Stays on top of everything */
     background-color: transparent;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
     padding: 1rem 0;
 }
 
 .header.scrolled {
-    background-color: var(--color-white);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: rgba(10, 25, 47, 0.85);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .header-nav {
@@ -83,18 +89,8 @@ body {
 .header-logo {
     font-size: 1.75rem;
     font-weight: 800;
-    color: var(--color-dark-blue);
+    color: var(--color-accent-cyan);
 }
-
-.header.scrolled .header-logo {
-    color: var(--color-dark-blue);
-}
-
-/* On hero, logo text needs to be light */
-.header:not(.scrolled) .header-logo {
-    color: var(--color-white); 
-}
-
 
 .header-links a {
     font-size: 1rem;
@@ -102,26 +98,27 @@ body {
     text-decoration: none;
     margin-left: 2rem;
     transition: color 0.3s ease;
+    color: var(--color-text-light);
 }
 
-/* On hero, links need to be light */
-.header:not(.scrolled) .header-links a {
-     color: var(--color-white);
-}
-.header.scrolled .header-links a {
-     color: var(--color-dark-blue);
-}
 .header-links a:hover {
-    color: var(--color-light-green);
+    color: var(--color-accent-cyan);
 }
 
-/* --- Side Navigation (NEW) --- */
+.header:not(.scrolled) .header-links a {
+     color: var(--color-text-light);
+}
+.header:not(.scrolled) .header-logo {
+    color: var(--color-accent-cyan); 
+}
+
+/* --- Side Navigation (Glassmorphism) --- */
 .side-nav {
     position: fixed;
     left: 20px;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 999;
+    z-index: 999; /* Below header, above content */
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -135,7 +132,7 @@ body {
     height: 48px;
     padding: 12px;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(40, 58, 83, 0.5);
     backdrop-filter: blur(5px);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
@@ -144,42 +141,40 @@ body {
 }
 
 .side-nav-link span {
-    display: none; /* Hide text by default */
+    display: none; 
     font-weight: 600;
-    color: var(--color-dark-blue);
+    color: var(--color-text-light);
     white-space: nowrap;
     margin-left: 10px;
 }
 
 .side-nav-link:hover,
 .side-nav-link.active {
-    width: 160px; /* Expand width on hover/active */
+    width: 160px;
     border-radius: 30px;
-    background-color: var(--color-white);
+    background-color: var(--color-light-blue);
 }
 
 .side-nav-link:hover span,
 .side-nav-link.active span {
-    display: inline; /* Show text on hover/active */
+    display: inline;
 }
 
-/* Dot inside the circle */
 .side-nav-link::before {
     content: '';
     display: block;
     min-width: 12px;
     height: 12px;
     border-radius: 50%;
-    background-color: var(--color-dark-blue);
+    background-color: var(--color-text-dark);
     transition: all 0.3s ease;
 }
 
 .side-nav-link.active::before {
-    background-color: var(--color-green); /* Active dot color */
+    background-color: var(--color-accent-cyan);
 }
 
-
-/* --- Hero Section --- */
+/* --- Hero Section (UPDATED IMAGE) --- */
 .hero {
     position: relative;
     min-height: 100vh;
@@ -188,12 +183,13 @@ body {
     justify-content: center;
     text-align: center;
     padding: 0 1.5rem;
-    /* Humanitarian background image */
-    background-image: linear-gradient(rgba(17, 75, 95, 0.6), rgba(17, 75, 95, 0.6)), url('https://www.cdmsmith.com/-/media/insights/pfas-and-leachate/pfas-landfill-leachate_hero/pfaslandfillleachateherojpeg_16x9.jpg');
+    /* This section still uses its image, fading to the 3D scene */
+    background-image: linear-gradient(rgba(10, 25, 47, 0.7), rgba(10, 25, 47, 0.7)), url('https://www.cdmsmith.com/-/media/insights/pfas-and-leachate/pfas-landfill-leachate_hero/pfaslandfillleachateherojpeg_16x9.jpg');
     background-size: cover;
     background-position: center;
-    background-attachment: fixed; /* Parallax-like effect */
-    color: var(--color-white);
+    background-attachment: fixed;
+    color: var(--color-text-light);
+    z-index: 5; /* Above canvas, below main content */
 }
 
 .hero-content {
@@ -205,16 +201,17 @@ body {
     font-weight: 800;
     margin-bottom: 1rem;
     line-height: 1.2;
+    color: var(--color-white);
 }
 
 .hero-subtitle {
     font-size: 1.5rem;
     font-weight: 400;
     margin-bottom: 2rem;
-    color: var(--color-pale-green); /* This will now be #b5e48c */
+    color: var(--color-accent-cyan);
 }
 
-/* --- Buttons --- */
+/* --- Buttons (Ghost Button Style) --- */
 .btn {
     display: inline-block;
     padding: 0.75rem 2rem;
@@ -222,43 +219,52 @@ body {
     text-decoration: none;
     font-size: 1.1rem;
     font-weight: 600;
-    transition: transform 0.3s ease, background-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .btn-primary {
-    background-color: var(--color-green);
-    color: var(--color-white);
+    background-color: transparent;
+    color: var(--color-accent-cyan);
+    border: 1px solid var(--color-accent-cyan);
 }
 
 .btn-primary:hover {
-    background-color: var(--color-light-green);
-    color: var(--color-white);
+    background-color: rgba(100, 255, 218, 0.1);
+    color: var(--color-accent-cyan);
     transform: translateY(-3px);
 }
 
-/* --- Content Sections (NEW) --- */
+/* --- Content Sections (Floating) --- */
 .content-section {
-    padding: 5rem 0;
-    background-color: var(--color-cream);
+    padding: 10rem 0; /* More padding to allow for scrolling */
+    min-height: 100vh; /* Make sections take up screen height */
+    display: flex;
+    align-items: center;
+    background-color: transparent; /* Floats over canvas */
 }
 
-.content-section.alt-bg {
-    background-color: var(--color-pale-green);
-}
-
+/* This is the floating text box */
 .content-container {
     max-width: 800px;
     font-size: 1.1rem;
+    /* Add a backdrop for readability */
+    background-color: rgba(17, 34, 64, 0.85); /* Semi-transparent */
+    backdrop-filter: blur(10px);
+    padding: 2.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(100, 255, 218, 0.1);
 }
 .content-container p {
     margin-bottom: 1.5rem;
 }
 
-
-/* --- Dashboard Section --- */
+/* --- Dashboard Section (Stays Opaque) --- */
 .dashboard-section {
     padding: 5rem 0;
-    background-color: var(--color-cream);
+    /* This section is opaque, covering the canvas */
+    background-color: var(--color-dark-blue);
+    position: relative;
+    z-index: 20; /* Ensure it draws over the canvas */
 }
 
 .live-indicator {
@@ -268,13 +274,13 @@ body {
     margin-bottom: 2rem;
     font-size: 1.1rem;
     font-weight: 600;
-    color: var(--color-green);
+    color: var(--color-accent-cyan);
 }
 
 .live-dot {
     width: 12px;
     height: 12px;
-    background-color: var(--color-green);
+    background-color: var(--color-accent-cyan);
     border-radius: 50%;
     margin-right: 0.75rem;
     animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -300,18 +306,20 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
 }
 
-/* --- Cards --- */
+/* --- Cards (Glassmorphism) --- */
 .card {
-    background-color: var(--color-white);
+    background-color: rgba(17, 34, 64, 0.75);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(100, 255, 218, 0.1);
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 4px 15px rgba(17, 75, 95, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .card-title {
     font-size: 1.1rem;
     font-weight: 600;
-    color: var(--color-dark-blue);
+    color: var(--color-text-light);
     margin-bottom: 0.5rem;
 }
 
@@ -320,12 +328,20 @@ body {
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
+    color: var(--color-text-light);
 }
 
 .card-stat {
     font-size: 2.75rem;
     font-weight: 700;
-    color: var(--color-dark-blue);
+    color: var(--color-white);
+}
+
+#landfillDiversion {
+    color: var(--color-accent-cyan) !important;
+}
+#co2Saved {
+    color: var(--color-accent-teal) !important;
 }
 
 /* --- Chart Container --- */
@@ -334,40 +350,14 @@ body {
     height: 350px;
 }
 
-/* --- About Section (Legacy, on about page) --- */
-.about-section {
-    padding: 5rem 0;
-    background-color: var(--color-pale-green);
-}
-
-.about-content {
-    max-width: 800px;
-    font-size: 1.1rem;
-}
-
-.about-content h2 {
-    text-align: left;
-    margin-bottom: 2rem;
-}
-
-.about-content p, .about-content ul {
-    margin-bottom: 1.5rem;
-}
-
-.about-content ul {
-    list-style-position: inside;
-    padding-left: 0.5rem;
-}
-.about-content li {
-    margin-bottom: 0.5rem;
-}
-
 /* --- Footer --- */
 .footer {
     padding: 3rem 0;
-    background-color: var(--color-dark-blue);
-    color: var(--color-pale-green);
+    background-color: var(--color-dark-blue); /* Opaque footer */
+    color: var(--color-text-dark);
     text-align: center;
+    position: relative;
+    z-index: 20; /* Sits over canvas */
 }
 
 /* --- Responsive --- */
@@ -385,18 +375,21 @@ body {
     .header-links {
         display: flex;
         justify-content: center;
+        flex-wrap: wrap;
         width: 100%;
     }
     .header-links a {
-        margin: 0 1rem;
+        margin: 0 0.5rem;
     }
     .stats-grid, .charts-grid {
         grid-template-columns: 1fr;
     }
-
-    /* Hide side-nav on mobile, as it will likely overlap content */
     .side-nav {
         display: none;
+    }
+    /* Adjust content section padding for mobile */
+    .content-section {
+        padding: 5rem 0;
     }
 }
 

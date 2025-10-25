@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Waste Classification Analytics</title>
     
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Google Font: Inter -->
+    <!-- Google Font: Space Grotesk -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
@@ -17,6 +14,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <!-- This canvas will hold the 3D scene -->
+    <canvas id="bg-canvas"></canvas>
 
     <!-- Header / Navbar -->
     <header class="header" id="header">
@@ -64,7 +64,7 @@
             </div>
         </section>
 
-        <!-- Problem Section (NEW) -->
+        <!-- Problem Section (UPDATED TEXT) -->
         <section class="content-section" id="problem">
             <div class="container content-container">
                 <h2 class="section-title">The Problem</h2>
@@ -80,8 +80,8 @@
             </div>
         </section>
 
-        <!-- Solution Section (NEW) -->
-        <section class="content-section alt-bg" id="solution">
+        <!-- Solution Section (UPDATED TEXT) -->
+        <section class="content-section" id="solution">
              <div class="container content-container">
                 <h2 class="section-title">Our Solution</h2>
                 <p>
@@ -112,15 +112,15 @@
                     </div>
                     <div class="card">
                         <h3 class="card-title">Landfill Diversion (Est.)</h3>
-                        <p id="landfillDiversion" class="card-stat" style="color: var(--color-green);">0.00 kg</p>
+                        <p id="landfillDiversion" class="card-stat">0.00 kg</p>
                     </div>
                     <div class="card">
                         <h3 class="card-title">CO2 Reduction (Est.)</h3>
-                        <p id="co2Saved" class="card-stat" style="color: var(--color-light-green);">0.00 kg</p>
+                        <p id="co2Saved" class="card-stat">0.00 kg</p>
                     </div>
                 </div>
 
-                <!-- Charts -->
+                <!-- Charts (Will now show 4 categories) -->
                 <div class="charts-grid">
                     <div class="card chart-card">
                         <h3 class="card-title-center">Waste Composition (by %)</h3>
@@ -147,6 +147,16 @@
         </div>
     </footer>
 
+    <!-- 3D & Animation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Your Custom JavaScript (now with 3D and Firebase) -->
     <script src="script.js" type="module"></script>
 </body>
 </html>
+
