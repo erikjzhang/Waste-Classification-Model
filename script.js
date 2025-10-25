@@ -2,8 +2,15 @@
 
 let percentageChart, weightChart;
 
+// --- NEW ---
+// Store sections and nav links for scroll spying
+const sections = [];
+const navLinks = new Map();
+// --- END NEW ---
+
 // This runs when the page is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
+    
     // --- HEADER SCROLL LOGIC ---
     const header = document.getElementById('header');
     if (header) {
@@ -11,6 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.getElementById('home')) {
             // Only add scroll listener on the home page
             window.addEventListener('scroll', handleHeaderScroll);
+            
+            // --- NEW: LOGIC FOR SIDE-NAV ACTIVE STATE ---
+            setupScrollSpy();
+            window.addEventListener('scroll', handleSideNavActiveState);
+            // --- END NEW ---
+
         } else {
             // On other pages (like about.html), make the header solid from the start
             header.classList.add('scrolled');
@@ -34,8 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
             }
-            // If the link goes to another page (e.g., index.html#dashboard from about.html),
-            // the browser will handle the navigation normally.
         });
     });
 
@@ -63,18 +74,69 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 function handleHeaderScroll() {
     const header = document.getElementById('header');
-    if (window.scrollY > 50) {
-        header.classList.add('scrolled');
-    } else {
-        header.classList.remove('scrolled');
+    if (header) {
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
     }
 }
+
+// --- NEW: Functions for Side-Nav Scroll Spy ---
+
+/**
+ * Finds all sections and nav links to prepare for scroll spying
+ */
+function setupScrollSpy() {
+    const sideNav = document.querySelector('.side-nav');
+    if (!sideNav) return;
+
+    // Find all sections that the side-nav links to
+    sideNav.querySelectorAll('.side-nav-link').forEach(link => {
+        const sectionId = link.dataset.section;
+        const section = document.getElementById(sectionId);
+        if (section) {
+            sections.push(section);
+            navLinks.set(section, link); // Map the section element to its link
+        }
+    });
+}
+
+/**
+ * Handles updating the active class on side-nav links based on scroll position
+ */
+function handleSideNavActiveState() {
+    if (sections.length === 0) return;
+
+    let currentSection = sections[0];
+    const headerOffset = 100; // An offset to trigger a bit earlier
+
+    // Find the section currently in view
+    for (const section of sections) {
+        const sectionTop = section.offsetTop;
+        if (window.scrollY >= sectionTop - headerOffset) {
+            currentSection = section;
+        }
+    }
+
+    // Update active class on all links
+    navLinks.forEach((link, section) => {
+        if (section === currentSection) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+}
+// --- END NEW ---
+
 
 /**
  * Initializes the Doughnut chart for waste percentages
  */
-function initPercentageChart() {
-    const ctx = document.getElementById('wastePercentageChart').getContext('2d');
+function initPercentageChart(ctx) {
+    // ... (rest of the function is identical to your last version)
     percentageChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -113,8 +175,8 @@ function initPercentageChart() {
 /**
  * Initializes the Bar chart for waste weights
  */
-function initWeightChart() {
-    const ctx = document.getElementById('wasteWeightChart').getContext('2d');
+function initWeightChart(ctx) {
+    // ... (rest of the function is identical to your last version)
     weightChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -165,7 +227,6 @@ function initWeightChart() {
 
 /**
  * --- HACKATHON DEMO: DATA SIMULATION ---
- * This function simulates new data coming from your ML model.
  */
 let currentTotalWeight = 0;
 let currentLandfillDiversion = 0;
@@ -175,22 +236,17 @@ let runningMetalTotal = 0;
 let runningOrganicTotal = 0;
 
 function simulateDataUpdate() {
-    // Generate random weights for one "batch" of trash
+    // ... (rest of the function is identical to your last version)
     const plastic = Math.random() * 2; // 0-2 kg
     const metal = Math.random() * 1;   // 0-1 kg
     const organic = Math.random() * 3; // 0-3 kg
 
-    // Add to totals
     runningPlasticTotal += plastic;
     runningMetalTotal += metal;
     runningOrganicTotal += organic;
     
     currentTotalWeight = runningPlasticTotal + runningMetalTotal + runningOrganicTotal;
-    
-    // Simple 1:1 diversion for all waste processed
     currentLandfillDiversion = currentTotalWeight; 
-    
-    // Example multipliers for CO2 saved
     currentCo2Saved = (runningPlasticTotal * 2.5) + (runningMetalTotal * 1.8) + (runningOrganicTotal * 0.1); 
 
     const newData = {
@@ -209,23 +265,21 @@ function simulateDataUpdate() {
  * Updates all charts and stats cards with new data.
  */
 function updateDashboard(data) {
+    // ... (rest of the function is identical to your last version)
     const totalForPercent = data.totalWeight > 0 ? data.totalWeight : 1;
     const plasticPercent = (data.plasticWeight / totalForPercent) * 100;
     const metalPercent = (data.metalWeight / totalForPercent) * 100;
     const organicPercent = (data.organicWeight / totalForPercent) * 100;
 
-    // --- Update Stats Cards ---
     document.getElementById('totalWeight').innerText = data.totalWeight.toFixed(2) + ' kg';
     document.getElementById('landfillDiversion').innerText = data.landfillDiversion.toFixed(2) + ' kg';
     document.getElementById('co2Saved').innerText = data.co2Saved.toFixed(2) + ' kg';
 
-    // --- Update Percentage Chart ---
     if (percentageChart) {
         percentageChart.data.datasets[0].data = [plasticPercent, metalPercent, organicPercent];
         percentageChart.update();
     }
 
-    // --- Update Weight Chart ---
     if (weightChart) {
         weightChart.data.datasets[0].data = [data.plasticWeight, data.metalWeight, data.organicWeight];
         weightChart.update();

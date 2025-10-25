@@ -16,6 +16,11 @@
     padding: 0;
 }
 
+/* ADDED FOR SMOOTH SCROLL OFFSET */
+html {
+    scroll-padding-top: 80px; /* Adjust this to match your header height */
+}
+
 body {
     font-family: var(--font-main);
     background-color: var(--color-cream);
@@ -96,6 +101,69 @@ body {
     color: var(--color-light-green);
 }
 
+/* --- Side Navigation (NEW) --- */
+.side-nav {
+    position: fixed;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.side-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 48px;
+    height: 48px;
+    padding: 12px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.side-nav-link span {
+    display: none; /* Hide text by default */
+    font-weight: 600;
+    color: var(--color-dark-blue);
+    white-space: nowrap;
+    margin-left: 10px;
+}
+
+.side-nav-link:hover,
+.side-nav-link.active {
+    width: 160px; /* Expand width on hover/active */
+    border-radius: 30px;
+    background-color: var(--color-white);
+}
+
+.side-nav-link:hover span,
+.side-nav-link.active span {
+    display: inline; /* Show text on hover/active */
+}
+
+/* Dot inside the circle */
+.side-nav-link::before {
+    content: '';
+    display: block;
+    min-width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--color-dark-blue);
+    transition: all 0.3s ease;
+}
+
+.side-nav-link.active::before {
+    background-color: var(--color-green); /* Active dot color */
+}
+
 
 /* --- Hero Section --- */
 .hero {
@@ -154,10 +222,29 @@ body {
     transform: translateY(-3px);
 }
 
+/* --- Content Sections (NEW) --- */
+.content-section {
+    padding: 5rem 0;
+    background-color: var(--color-cream);
+}
+
+.content-section.alt-bg {
+    background-color: var(--color-pale-green);
+}
+
+.content-container {
+    max-width: 800px;
+    font-size: 1.1rem;
+}
+.content-container p {
+    margin-bottom: 1.5rem;
+}
+
+
 /* --- Dashboard Section --- */
 .dashboard-section {
     padding: 5rem 0;
-    background-color: var(--color-cream);
+    background-color: var(--color-cream); /* Re-using cream for dashboard */
 }
 
 .live-indicator {
@@ -233,7 +320,7 @@ body {
     height: 350px;
 }
 
-/* --- About Section --- */
+/* --- About Section (Legacy, on about page) --- */
 .about-section {
     padding: 5rem 0;
     background-color: var(--color-pale-green);
@@ -291,6 +378,11 @@ body {
     }
     .stats-grid, .charts-grid {
         grid-template-columns: 1fr;
+    }
+
+    /* Hide side-nav on mobile, as it will likely overlap content */
+    .side-nav {
+        display: none;
     }
 }
 
