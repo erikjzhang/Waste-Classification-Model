@@ -1,1 +1,138 @@
-    
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Waste Classification Analytics</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Link to your new stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-green-700">
+                EcoSort AI
+            </div>
+            <div class="flex space-x-4">
+                <a href="#home" class="text-gray-600 hover:text-green-700 font-medium">Home</a>
+                <a href="#dashboard" class="text-gray-600 hover:text-green-700 font-medium">Dashboard</a>
+                <a href="#about" class="text-gray-600 hover:text-green-700 font-medium">About</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero-gradient">
+            <div class="container mx-auto px-6 py-20 text-center">
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    AI-Powered Waste Analytics
+                </h1>
+                <p class="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
+                    Our model identifies plastic, metal, and organic matter in real-time to provide live analytics on waste streams, helping us build a cleaner future.
+                </p>
+                
+                <a href="#dashboard" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-green-700 transition duration-300">
+                    View Live Dashboard
+                </a>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="py-16">
+            <div class="container mx-auto px-6">
+                <!-- Live Indicator -->
+                <div class="flex items-center justify-center mb-6">
+                    <span class="flex h-3 w-3 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                    <span class="ml-3 text-lg font-medium text-red-600">LIVE DATA</span>
+                </div>
+                
+                <h2 class="text-3xl font-bold text-center mb-10">
+                    Real-Time Waste Stream
+                </h2>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <!-- Card: Total Weight -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-lg font-medium text-gray-500 mb-2">Total Weight Processed</h3>
+                        <p id="totalWeight" class="text-4xl font-bold text-gray-900">0.00 kg</p>
+                    </div>
+                    <!-- Card: Environmental Benefit 1 -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-lg font-medium text-gray-500 mb-2">Landfill Diversion (Est.)</h3>
+                        <p id="landfillDiversion" class="text-4xl font-bold text-green-600">0.00 kg</p>
+                    </div>
+                    <!-- Card: Environmental Benefit 2 -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-lg font-medium text-gray-500 mb-2">CO2 Reduction (Est.)</h3>
+                        <p id="co2Saved" class="text-4xl font-bold text-blue-600">0.00 kg</p>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Chart: Percentage -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold text-center mb-4">Waste Composition (by %)</h3>
+                        <div class="h-80 md:h-96">
+                            <canvas id="wastePercentageChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Chart: Weight -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold text-center mb-4">Waste Weight (by kg)</h3>
+                         <div class="h-80 md:h-96">
+                            <canvas id="wasteWeightChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About / Benefits Section -->
+        <section id="about" class="bg-white py-16">
+            <div class="container mx-auto px-6 max-w-4xl">
+                <h2 class="text-3xl font-bold text-center mb-8">
+                    Environmental Benefits
+                </h2>
+                <p class="text-gray-700 text-lg mb-6">
+                    By accurately sorting waste, we can dramatically improve recycling rates and reduce landfill. Our dashboard calculates the estimated environmental impact based on the materials processed.
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700">
+                    <li><strong>Landfill Diversion:</strong> We estimate the total weight of recyclable (plastic, metal) and compostable (organic) materials diverted from landfills.</li>
+                    <li><strong>CO2 Reduction:</strong> Recycling materials like plastic and metal uses significantly less energy than producing them from raw materials. We estimate the CO2 savings based on industry averages.</li>
+                </ul>
+                <p class="text-gray-700 text-lg mt-6">
+                    Your hackathon model will feed data directly into this dashboard, providing a powerful, measurable story of your project's impact.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 EcoSort AI Team - Hackathon Project</p>
+        </div>
+    </footer>
+
+    <!-- Link to your new JavaScript file -->
+    <script src="script.js"></script>
+</body>
+</html>
+
