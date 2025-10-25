@@ -2,8 +2,8 @@
   ================================================================
   Project Sort(Ed) - Main Script
   
-  This version is modified for LOCAL TESTING.
-  It includes hardcoded API keys and a simplified database path.
+  This script is now CLEAN of secret keys.
+  It imports the config from the untracked 'firebase-config.js' file.
   ================================================================
 */
 
@@ -13,16 +13,10 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// --- Firebase Configuration (Hardcoded for Local Testing) ---
-const firebaseConfig = {
-    apiKey: "AIzaSyBL0k6AE5NBpVOQPEEGsKRMc48yDuEGonc",
-    authDomain: "ai-waste-classification-d07a6.firebaseapp.com",
-    projectId: "ai-waste-classification-d07a6",
-    storageBucket: "ai-waste-classification-d07a6.appspot.com",
-    messagingSenderId: "512015830235",
-    appId: "1:512015830235:web:cb0f09269ff5b9e8d010fe",
-    measurementId: "G-4T8NKD7K74"
-};
+// --- Firebase Configuration (IMPORTED) ---
+// The config is now safely imported from a separate, un-tracked file
+import { firebaseConfig } from './firebase-config.js';
+
 
 // --- Firebase App Variables ---
 let app, auth, db, analytics;
@@ -163,7 +157,7 @@ function createWasteParticles() {
 
     const materials = [canMat, bottleMat, organicMat];
 
-    // Create and position particles randomly
+    // Create and position randomly
     for (let i = 0; i < particleCount; i++) {
         // Pick a random type
         const typeIndex = Math.floor(Math.random() * 3);
@@ -296,7 +290,7 @@ function initScrollAnimations() {
  * Initializes Firebase, handles authentication, and sets up auth listener.
  */
 async function initializeFirebase() {
-    // This will no longer fail, as firebaseConfig is hardcoded
+    // This will no longer fail, as firebaseConfig is imported
     if (firebaseConfig && firebaseConfig.apiKey) {
         app = initializeApp(firebaseConfig);
         analytics = getAnalytics(app);
@@ -567,7 +561,7 @@ function handleSideNavActiveState() {
     }
     
     navLinks.forEach((link, section) => {
-        if (section === currentSection) {
+        if (section === currentSecti) {
             link.classList.add('active');
         } else {
             link.classList.remove('active');
