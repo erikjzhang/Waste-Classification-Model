@@ -4,15 +4,28 @@ let percentageChart, weightChart;
 
 // This runs when the page is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize charts with empty data
+    // Add scroll listener for header
+    window.addEventListener('scroll', handleHeaderScroll);
+
+    // Initialize charts
     initPercentageChart();
     initWeightChart();
     
     // Start the "live" data simulation
-    // In your real project, you would replace this with a WebSocket or fetch() call
-    // that gets data from your ML model's API endpoint.
     setInterval(simulateDataUpdate, 3000); // Update every 3 seconds
 });
+
+/**
+ * Adds a 'scrolled' class to the header when user scrolls
+ */
+function handleHeaderScroll() {
+    const header = document.getElementById('header');
+    if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
+    }
+}
 
 /**
  * Initializes the Doughnut chart for waste percentages
@@ -27,16 +40,12 @@ function initPercentageChart() {
                 label: 'Waste Composition',
                 data: [0, 0, 0], // Start with 0
                 backgroundColor: [
-                    'rgba(59, 130, 246, 0.8)', // Blue
-                    'rgba(107, 114, 128, 0.8)', // Gray
-                    'rgba(22, 163, 74, 0.8)'   // Green
+                    '#1A936F', // var(--color-green)
+                    '#114B5F', // var(--color-dark-blue)
+                    '#88D498'  // var(--color-light-green)
                 ],
-                borderColor: [
-                    'rgba(59, 130, 246, 1)',
-                    'rgba(107, 114, 128, 1)',
-                    'rgba(22, 163, 74, 1)'
-                ],
-                borderWidth: 1
+                borderColor: '#F3E9D2', // var(--color-cream)
+                borderWidth: 3
             }]
         },
         options: {
@@ -45,6 +54,13 @@ function initPercentageChart() {
             plugins: {
                 legend: {
                     position: 'bottom',
+                    labels: {
+                        color: '#114B5F', // var(--color-dark-blue)
+                        font: {
+                            family: 'Inter',
+                            size: 14
+                        }
+                    }
                 }
             }
         }
@@ -64,16 +80,11 @@ function initWeightChart() {
                 label: 'Weight (kg)',
                 data: [0, 0, 0], // Start with 0
                 backgroundColor: [
-                    'rgba(59, 130, 246, 0.8)', // Blue
-                    'rgba(107, 114, 128, 0.8)', // Gray
-                    'rgba(22, 163, 74, 0.8)'   // Green
+                    '#1A936F', // var(--color-green)
+                    '#114B5F', // var(--color-dark-blue)
+                    '#88D498'  // var(--color-light-green)
                 ],
-                borderColor: [
-                    'rgba(59, 130, 246, 1)',
-                    'rgba(107, 114, 128, 1)',
-                    'rgba(22, 163, 74, 1)'
-                ],
-                borderWidth: 1
+                borderRadius: 4
             }]
         },
         options: {
@@ -81,7 +92,23 @@ function initWeightChart() {
             maintainAspectRatio: false,
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#114B5F',
+                        font: { family: 'Inter' }
+                    },
+                    grid: {
+                        color: 'rgba(17, 75, 95, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#114B5F',
+                        font: { family: 'Inter', size: 14 }
+                    },
+                    grid: {
+                        display: false
+                    }
                 }
             },
             plugins: {
@@ -96,11 +123,6 @@ function initWeightChart() {
 /**
  * --- HACKATHON DEMO: DATA SIMULATION ---
  * This function simulates new data coming from your ML model.
- * * TO-DO FOR YOUR TEAM:
- * 1. Create an API endpoint (e.g., using Flask/FastAPI in Python) that
- * your ML model sends data to (e.g., {"plastic": 1.2, "metal": 0.5, "organic": 3.0}).
- * 2. Replace the contents of this function with a `fetch()` call to that endpoint.
- * 3. Call the `updateDashboard` function with the real data.
  */
 let currentTotalWeight = 0;
 let currentLandfillDiversion = 0;
@@ -126,10 +148,8 @@ function simulateDataUpdate() {
     currentLandfillDiversion = currentTotalWeight; 
     
     // Example multipliers for CO2 saved
-    // These would be based on research (e.g., "saving 2.5kg of CO2 per kg of plastic recycled")
     currentCo2Saved = (runningPlasticTotal * 2.5) + (runningMetalTotal * 1.8) + (runningOrganicTotal * 0.1); 
 
-    // This is the data object your real API should provide
     const newData = {
         plasticWeight: runningPlasticTotal,
         metalWeight: runningMetalTotal, 
@@ -139,18 +159,13 @@ function simulateDataUpdate() {
         co2Saved: currentCo2Saved
     };
     
-    // Pass the simulated data to the update function
     updateDashboard(newData);
 }
 
 /**
  * Updates all charts and stats cards with new data.
- * @param {object} data - The data from your API.
- * Example: { plasticWeight: 10.5, metalWeight: 5.2, organicWeight: 20.1, totalWeight: 35.8, ... }
  */
 function updateDashboard(data) {
-    // Calculate percentages
-    // Avoid division by zero if total is 0
     const totalForPercent = data.totalWeight > 0 ? data.totalWeight : 1;
     const plasticPercent = (data.plasticWeight / totalForPercent) * 100;
     const metalPercent = (data.metalWeight / totalForPercent) * 100;
@@ -162,10 +177,15 @@ function updateDashboard(data) {
     document.getElementById('co2Saved').innerText = data.co2Saved.toFixed(2) + ' kg';
 
     // --- Update Percentage Chart ---
-    percentageChart.data.datasets[0].data = [plasticPercent, metalPercent, organicPercent];
-    percentageChart.update();
+    if (percentageChart) {
+        percentageChart.data.datasets[0].data = [plasticPercent, metalPercent, organicPercent];
+        percentageChart.update();
+    }
 
     // --- Update Weight Chart ---
-    weightChart.data.datasets[0].data = [data.plasticWeight, data.metalWeight, data.organicWeight];
-    weightChart.update();
+    if (weightChart) {
+        weightChart.data.datasets[0].data = [data.plasticWeight, data.metalWeight, data.organicWeight];
+        weightChart.update();
+    }
 }
+

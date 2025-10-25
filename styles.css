@@ -1,16 +1,296 @@
-/* Apply the Inter font */
+/* --- Color Palette & Root Variables --- */
+:root {
+    --color-dark-blue: #114B5F;
+    --color-green: #1A936F;
+    --color-light-green: #88D498;
+    --color-pale-green: #C6DABF;
+    --color-cream: #F3E9D2;
+    --color-white: #FFFFFF;
+    --font-main: 'Inter', sans-serif;
+}
+
+/* --- Base & Body Styles --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-main);
+    background-color: var(--color-cream);
+    color: var(--color-dark-blue);
+    line-height: 1.6;
 }
-/* Custom gradient for the hero */
-.hero-gradient {
-    background: linear-gradient(90deg, #dcfce7 0%, #dbeafe 100%);
+
+/* --- Utility Classes --- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
 }
-/* A subtle glow for the live indicator */
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: var(--color-dark-blue);
+}
+
+/* --- Header --- */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: transparent;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    padding: 1rem 0;
+}
+
+.header.scrolled {
+    background-color: var(--color-white);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-logo {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--color-dark-blue);
+}
+
+.header.scrolled .header-logo {
+    color: var(--color-dark-blue);
+}
+
+/* On hero, logo text needs to be light */
+.header:not(.scrolled) .header-logo {
+    color: var(--color-cream); 
+}
+
+
+.header-links a {
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 2rem;
+    transition: color 0.3s ease;
+}
+
+/* On hero, links need to be light */
+.header:not(.scrolled) .header-links a {
+     color: var(--color-pale-green);
+}
+.header.scrolled .header-links a {
+     color: var(--color-dark-blue);
+}
+.header-links a:hover {
+    color: var(--color-light-green);
+}
+
+
+/* --- Hero Section --- */
+.hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 1.5rem;
+    /* Humanitarian background image */
+    background-image: linear-gradient(rgba(17, 75, 95, 0.6), rgba(17, 75, 95, 0.6)), url('https://images.pexels.com/photos/7947147/pexels-photo-7947147.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Parallax-like effect */
+    color: var(--color-cream);
+}
+
+.hero-content {
+    max-width: 800px;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+    color: var(--color-pale-green);
+}
+
+/* --- Buttons --- */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--color-green);
+    color: var(--color-white);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-light-green);
+    color: var(--color-dark-blue);
+    transform: translateY(-3px);
+}
+
+/* --- Dashboard Section --- */
+.dashboard-section {
+    padding: 5rem 0;
+    background-color: var(--color-cream);
+}
+
+.live-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-green);
+}
+
 .live-dot {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-green);
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
 @keyframes pulse {
     0%, 100% { opacity: 1; }
-    50% { opacity: .5; }
+    50% { opacity: 0.5; }
 }
+
+/* --- Grids (Stats & Charts) --- */
+.stats-grid, .charts-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    margin-bottom: 3rem;
+}
+
+.charts-grid {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+
+/* --- Cards --- */
+.card {
+    background-color: var(--color-white);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(17, 75, 95, 0.1);
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-dark-blue);
+    margin-bottom: 0.5rem;
+}
+
+.card-title-center {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.card-stat {
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: var(--color-dark-blue);
+}
+
+/* --- Chart Container --- */
+.chart-container {
+    position: relative;
+    height: 350px;
+}
+
+/* --- About Section --- */
+.about-section {
+    padding: 5rem 0;
+    background-color: var(--color-pale-green);
+}
+
+.about-content {
+    max-width: 800px;
+    font-size: 1.1rem;
+}
+
+.about-content h2 {
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+.about-content p, .about-content ul {
+    margin-bottom: 1.5rem;
+}
+
+.about-content ul {
+    list-style-position: inside;
+    padding-left: 0.5rem;
+}
+.about-content li {
+    margin-bottom: 0.5rem;
+}
+
+/* --- Footer --- */
+.footer {
+    padding: 3rem 0;
+    background-color: var(--color-dark-blue);
+    color: var(--color-pale-green);
+    text-align: center;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    .hero-subtitle {
+        font-size: 1.25rem;
+    }
+    .header-nav {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .header-links {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    .header-links a {
+        margin: 0 1rem;
+    }
+    .stats-grid, .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
