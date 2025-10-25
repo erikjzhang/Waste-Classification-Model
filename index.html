@@ -5,84 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Waste Classification Analytics</title>
     
-    <!-- Google Font: Playfair Display -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
     
-    <!-- Your Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!--hey guys this is all of the firebase/colab configuration stuff to get the data from there to here-->
-    <script type="module">
-  // 1. Import necessary Firebase modules
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-  import { getFirestore, collection, query, onSnapshot, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-
-  // 2. PASTE YOUR CONFIG HERE (This is public and safe for GitHub)
-const firebaseConfig = {
-  apiKey: "AIzaSyBL0k6AE5NBpVOQPEEGsKRMc48yDuEGonc",
-  authDomain: "ai-waste-classification-d07a6.firebaseapp.com",
-  projectId: "ai-waste-classification-d07a6",
-  storageBucket: "ai-waste-classification-d07a6.firebasestorage.app",
-  messagingSenderId: "512015830235",
-  appId: "1:512015830235:web:cb0f09269ff5b9e8d010fe",
-  measurementId: "G-4T8NKD7K74"
-};
-    // ... rest of config
-  };
-
-  // 3. Initialize App and Database
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // 4. Set up the Live Listener (Pulls the latest aggregated stats)
-  // We query the 'live_conveyor_belt_stats' collection, order by timestamp, and take only the latest one.
-  const statsQuery = query(
-    collection(db, "live_conveyor_belt_stats"),
-    orderBy("timestamp", "desc"),
-    limit(1)
-  );
-
-  onSnapshot(statsQuery, (querySnapshot) => {
-    querySnapshot.forEach((doc) => {
-      const liveData = doc.data();
-
-      // --- 5. DATA EXTRACTION ---
-      const percents = liveData.percent_composition;
-      const totalMass = liveData.total_mass_kg;
-      const co2Avoided = liveData.environmental_impact.total_co2_avoided_kg;
-
-      console.log("New Live Data Received:", percents);
-
-      // --- 6. UPDATE YOUR VISUALS ---
-      // This is where you write code to update your charts/HTML elements.
-      document.getElementById('total-mass').innerText = totalMass.toFixed(2) + ' kg';
-      document.getElementById('co2-avoided').innerText = co2Avoided.toFixed(2) + ' kg CO₂e';
-      
-      // Example: Update a percentage bar/pie chart for 'plastic'
-      // You must create HTML elements with IDs like 'plastic-percent'
-      if (percents.plastic) {
-         document.getElementById('plastic-percent').style.width = percents.plastic.toFixed(1) + '%';
-         document.getElementById('plastic-value').innerText = percents.plastic.toFixed(1) + '%';
-      }
-      // Repeat for metal, organic, glass...
-    });
-  });
-</script>
-    <!-- This canvas will hold the 3D scene -->
     <canvas id="bg-canvas"></canvas>
 
-    <!-- Header / Navbar -->
     <header class="header" id="header">
         <nav class="container header-nav">
             <div class="header-logo">
                 Project Sort(Ed)
             </div>
             <div class="header-links">
-                <!-- Links updated -->
                 <a href="#home">Home</a>
                 <a href="#dashboard">Dashboard</a>
                 <a href="About_Webpage/aboutPage.html">About Us</a>
@@ -90,7 +28,6 @@ const firebaseConfig = {
         </nav>
     </header>
 
-    <!-- Side Navigation -->
     <nav class="side-nav">
         <a href="#home" class="side-nav-link active" data-section="home" title="Home">
             <span>Home</span>
@@ -106,10 +43,8 @@ const firebaseConfig = {
         </a>
     </nav>
 
-    <!-- Main Content -->
     <main>
         
-        <!-- Hero Section -->
         <section class="hero" id="home">
             <div class="hero-content">
                 <h1 class="hero-title">Rethink Waste.<br/>Redefine Impact.</h1>
@@ -121,7 +56,6 @@ const firebaseConfig = {
             </div>
         </section>
 
-        <!-- Problem Section (UPDATED TEXT) -->
         <section class="content-section" id="problem">
             <div class="container content-container">
                 <h2 class="section-title">The Problem</h2>
@@ -137,7 +71,6 @@ const firebaseConfig = {
             </div>
         </section>
 
-        <!-- Solution Section (UPDATED TEXT) -->
         <section class="content-section" id="solution">
              <div class="container content-container">
                 <h2 class="section-title">Our Solution</h2>
@@ -150,10 +83,8 @@ const firebaseConfig = {
             </div>
         </section>
 
-        <!-- Dashboard Section -->
         <section class="dashboard-section" id="dashboard">
             <div class="container">
-                <!-- Live Indicator -->
                 <div class="live-indicator">
                     <span class="live-dot"></span>
                     <span>LIVE DATA</span>
@@ -161,7 +92,6 @@ const firebaseConfig = {
                 
                 <h2 class="section-title">Real-Time Waste Stream</h2>
 
-                <!-- Stats Cards -->
                 <div class="stats-grid">
                     <div class="card">
                         <h3 class="card-title">Total Weight Processed</h3>
@@ -177,13 +107,12 @@ const firebaseConfig = {
                     </div>
                 </div>
 
-                <!-- Charts (Will now show 4 categories) -->
                 <div class="charts-grid">
                     <div class="card chart-card">
                         <h3 class="card-title-center">Waste Composition (by %)</h3>
                         <div class="chart-container">
                                 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-                              <canvas id="massPieChart" style="max-height: 400px;"></canvas>
+                            <canvas id="wastePercentageChart" style="max-height: 400px;"></canvas>
                         </div>
                     </div>
                     <div class="card chart-card">
@@ -198,22 +127,18 @@ const firebaseConfig = {
 
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <p>&copy; 2025 Project Sort(Ed) Team - Hackathon Project</p>
         </div>
     </footer>
 
-    <!-- 3D & Animation Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
     
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script src="script.js" type="module"></script>
 </body>
 </html>
-

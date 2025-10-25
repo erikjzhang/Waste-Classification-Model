@@ -109,22 +109,11 @@ main {
      color: var(--color-text-light);
 }
 .header:not(.scrolled) .header-logo {
-    color: var(--color-accent-cyan); 
+    color: var(--color-accent-cyan);  
 }
 
 /* --- Side Navigation (Glassmorphism) --- */
-.side-nav {
-    position: fixed;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 999; /* Below header, above content */
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* --- Side Navigation (Glassmorphism) --- */
+/* (Removed duplicate rule) */
 .side-nav {
     position: fixed;
     left: 20px;
@@ -172,8 +161,8 @@ main {
 }
 
 /* FIX: Ensure the default state properties (width, padding) are always 
-    applied when NOT hovered and NOT active. This explicit definition 
-    will ensure retraction works. 
+   applied when NOT hovered and NOT active. This explicit definition 
+   will ensure retraction works. 
 */
 .side-nav-link:not(:hover):not(.active) {
     width: 48px; /* Explicitly reset width */
@@ -190,8 +179,8 @@ main {
 .side-nav-link::before {
     content: '';
     display: block;
-    width: 12px; 
-    height: 12px; 
+    width: 12px;  
+    height: 12px;  
     border-radius: 50%;
     background-color: var(--color-text-dark);
     transition: all 0.3s ease;
@@ -419,4 +408,3 @@ main {
         padding: 5rem 0;
     }
 }
-
