@@ -1,6 +1,6 @@
 /*
   ================================================================
-  Project Sort(Ed) - Main Script
+  WasteWise - Main Script
  
   This script is now CLEAN of secret keys.
   It imports the config from the untracked 'firebase-config.js' file.
