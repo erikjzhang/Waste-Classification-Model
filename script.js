@@ -1,12 +1,39 @@
-// --- CHART.JS AND DATA SIMULATION ---
+/*
+  ================================================================
+  Project Sort(Ed) - Main Dashboard Script
+  
+  This script READS from Firebase to update charts.
+  ================================================================
+*/
 
+// --- Firebase SDK Imports ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+// --- Firebase Configuration ---
+const firebaseConfig = {
+    apiKey: "AIzaSyBL0k6AE5NBpVOQPEEGsKRMc48yDuEGonc",
+    authDomain: "ai-waste-classification-d07a6.firebaseapp.com",
+    projectId: "ai-waste-classification-d07a6",
+    storageBucket: "ai-waste-classification-d07a6.firebasestorage.app",
+    messagingSenderId: "512015830235",
+    appId: "1:512015830235:web:cb0f09269ff5b9e8d010fe",
+    measurementId: "G-4T8NKD7K74"
+};
+
+// --- Initialize Firebase ---
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+const dbCollection = collection(db, "classifications"); // Database "folder"
+
+// --- REMOVED Teachable Machine variables ---
+
+// --- Global Variables ---
 let percentageChart, weightChart;
-
-// --- NEW ---
-// Store sections and nav links for scroll spying
 const sections = [];
 const navLinks = new Map();
-// --- END NEW ---
 
 // This runs when the page is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,18 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- HEADER SCROLL LOGIC ---
     const header = document.getElementById('header');
     if (header) {
-        // Check if we are on the home page (which has the 'home' hero section)
         if (document.getElementById('home')) {
-            // Only add scroll listener on the home page
             window.addEventListener('scroll', handleHeaderScroll);
-            
-            // --- NEW: LOGIC FOR SIDE-NAV ACTIVE STATE ---
             setupScrollSpy();
             window.addEventListener('scroll', handleSideNavActiveState);
-            // --- END NEW ---
-
         } else {
-            // On other pages (like about.html), make the header solid from the start
             header.classList.add('scrolled');
         }
     }
@@ -33,13 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- SMOOTH SCROLL LOGIC ---
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
-            // Get the full URL path of the link and the current page
             const linkPath = new URL(this.href, window.location.origin).pathname;
             const currentPath = window.location.pathname;
 
-            // Only smooth scroll if the link is on the *current* page
             if (linkPath === currentPath && this.hash !== "") {
-                e.preventDefault(); // Stop the default jump
+                e.preventDefault();
                 const targetElement = document.querySelector(this.hash);
                 if (targetElement) {
                     targetElement.scrollIntoView({
@@ -50,9 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-
     // --- CHART INITIALIZATION ---
-    // Only try to create charts if the canvas elements exist on the page
     const percentageChartCtx = document.getElementById('wastePercentageChart');
     if (percentageChartCtx) {
         initPercentageChart(percentageChartCtx.getContext('2d'));
@@ -63,9 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
         initWeightChart(weightChartCtx.getContext('2d'));
     }
     
-    // Start simulation *only* if both charts were initialized
+    // --- FIREBASE LISTENER ---
+    // This will now work because `onSnapshot` is imported
     if (percentageChart && weightChart) {
-        setInterval(simulateDataUpdate, 3000); // Update every 3 seconds
+        setupFirebaseListener();
     }
 });
 
@@ -73,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
  * Adds a 'scrolled' class to the header when user scrolls
  */
 function handleHeaderScroll() {
+    // ... (This function is unchanged)
     const header = document.getElementById('header');
     if (header) {
         if (window.scrollY > 50) {
@@ -83,36 +101,27 @@ function handleHeaderScroll() {
     }
 }
 
-// --- NEW: Functions for Side-Nav Scroll Spy ---
-
-/**
- * Finds all sections and nav links to prepare for scroll spying
- */
+// --- Functions for Side-Nav Scroll Spy ---
 function setupScrollSpy() {
     const sideNav = document.querySelector('.side-nav');
     if (!sideNav) return;
 
-    // Find all sections that the side-nav links to
     sideNav.querySelectorAll('.side-nav-link').forEach(link => {
         const sectionId = link.dataset.section;
         const section = document.getElementById(sectionId);
         if (section) {
             sections.push(section);
-            navLinks.set(section, link); // Map the section element to its link
+            navLinks.set(section, link);
         }
     });
 }
 
-/**
- * Handles updating the active class on side-nav links based on scroll position
- */
 function handleSideNavActiveState() {
     if (sections.length === 0) return;
 
     let currentSection = sections[0];
-    const headerOffset = 100; // An offset to trigger a bit earlier
+    const headerOffset = 100;
 
-    // Find the section currently in view
     for (const section of sections) {
         const sectionTop = section.offsetTop;
         if (window.scrollY >= sectionTop - headerOffset) {
@@ -120,7 +129,6 @@ function handleSideNavActiveState() {
         }
     }
 
-    // Update active class on all links
     navLinks.forEach((link, section) => {
         if (section === currentSection) {
             link.classList.add('active');
@@ -129,27 +137,81 @@ function handleSideNavActiveState() {
         }
     });
 }
-// --- END NEW ---
+
+// --- FIREBASE REAL-TIME LISTENER ---
+/**
+ * Sets up the onSnapshot listener to get live data from Firestore
+ * and update the dashboard.
+ */
+function setupFirebaseListener() {
+    console.log("Setting up Firebase listener...");
+    
+    // This function runs every time data changes in the 'classifications' collection
+    onSnapshot(dbCollection, (querySnapshot) => {
+        console.log("Received data from Firebase:", querySnapshot.size, "items");
+        
+        let totalWeight = 0;
+        let plasticWeight = 0;
+        let metalWeight = 0;
+        let organicWeight = 0;
+
+        // Loop through every single document in the collection
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            
+            if (data.weight_kg) {
+                totalWeight += data.weight_kg;
+                
+                // Make sure these names ("Plastic", "Metal") MATCH
+                // your Teachable Machine class names!
+                switch (data.type) {
+                    case 'Plastic':
+                        plasticWeight += data.weight_kg;
+                        break;
+                    case 'Metal':
+                        metalWeight += data.weight_kg;
+                        break;
+                    case 'Organic':
+                        organicWeight += data.weight_kg;
+                        break;
+                }
+            }
+        });
+
+        // Now calculate the derived stats
+        const landfillDiversion = totalWeight; 
+        const co2Saved = (plasticWeight * 2.5) + (metalWeight * 1.8) + (organicWeight * 0.1); 
+
+        const dashboardData = {
+            plasticWeight: plasticWeight,
+            metalWeight: metalWeight, 
+            organicWeight: organicWeight, 
+            totalWeight: totalWeight,
+            landfillDiversion: landfillDiversion,
+            co2Saved: co2Saved
+        };
+        
+        updateDashboard(dashboardData);
+
+    }, (error) => {
+        console.error("Error listening to Firestore: ", error);
+    });
+}
 
 
 /**
  * Initializes the Doughnut chart for waste percentages
  */
 function initPercentageChart(ctx) {
-    // ... (rest of the function is identical to your last version)
     percentageChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: ['Plastic', 'Metal', 'Organic'],
             datasets: [{
                 label: 'Waste Composition',
-                data: [0, 0, 0], // Start with 0
-                backgroundColor: [
-                    '#1A936F', // var(--color-green)
-                    '#114B5F', // var(--color-dark-blue)
-                    '#88D498'  // var(--color-light-green)
-                ],
-                borderColor: '#F3E9D2', // var(--color-cream)
+                data: [0, 0, 0],
+                backgroundColor: ['#52b69a', '#184e77', '#76c893'],
+                borderColor: '#d9ed92',
                 borderWidth: 3
             }]
         },
@@ -160,11 +222,8 @@ function initPercentageChart(ctx) {
                 legend: {
                     position: 'bottom',
                     labels: {
-                        color: '#114B5F', // var(--color-dark-blue)
-                        font: {
-                            family: 'Inter',
-                            size: 14
-                        }
+                        color: '#184e77',
+                        font: { family: 'Space Grotesk', size: 14 }
                     }
                 }
             }
@@ -176,19 +235,14 @@ function initPercentageChart(ctx) {
  * Initializes the Bar chart for waste weights
  */
 function initWeightChart(ctx) {
-    // ... (rest of the function is identical to your last version)
     weightChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: ['Plastic', 'Metal', 'Organic'],
             datasets: [{
                 label: 'Weight (kg)',
-                data: [0, 0, 0], // Start with 0
-                backgroundColor: [
-                    '#1A936F', // var(--color-green)
-                    '#114B5F', // var(--color-dark-blue)
-                    '#88D498'  // var(--color-light-green)
-                ],
+                data: [0, 0, 0],
+                backgroundColor: ['#52b69a', '#184e77', '#76c893'],
                 borderRadius: 4
             }]
         },
@@ -198,75 +252,27 @@ function initWeightChart(ctx) {
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: {
-                        color: '#114B5F',
-                        font: { family: 'Inter' }
-                    },
-                    grid: {
-                        color: 'rgba(17, 75, 95, 0.1)'
-                    }
+                    ticks: { color: '#184e77', font: { family: 'Space Grotesk' } },
+                    grid: { color: 'rgba(24, 78, 119, 0.1)' }
                 },
                 x: {
-                    ticks: {
-                        color: '#114B5F',
-                        font: { family: 'Inter', size: 14 }
-                    },
-                    grid: {
-                        display: false
-                    }
+                    ticks: { color: '#184e77', font: { family: 'Space Grotesk', size: 14 } },
+                    grid: { display: false }
                 }
             },
             plugins: {
-                legend: {
-                    display: false // Hide legend for bar chart
-                }
+                legend: { display: false }
             }
         }
     });
 }
 
 /**
- * --- HACKATHON DEMO: DATA SIMULATION ---
- */
-let currentTotalWeight = 0;
-let currentLandfillDiversion = 0;
-let currentCo2Saved = 0;
-let runningPlasticTotal = 0;
-let runningMetalTotal = 0;
-let runningOrganicTotal = 0;
-
-function simulateDataUpdate() {
-    // ... (rest of the function is identical to your last version)
-    const plastic = Math.random() * 2; // 0-2 kg
-    const metal = Math.random() * 1;   // 0-1 kg
-    const organic = Math.random() * 3; // 0-3 kg
-
-    runningPlasticTotal += plastic;
-    runningMetalTotal += metal;
-    runningOrganicTotal += organic;
-    
-    currentTotalWeight = runningPlasticTotal + runningMetalTotal + runningOrganicTotal;
-    currentLandfillDiversion = currentTotalWeight; 
-    currentCo2Saved = (runningPlasticTotal * 2.5) + (runningMetalTotal * 1.8) + (runningOrganicTotal * 0.1); 
-
-    const newData = {
-        plasticWeight: runningPlasticTotal,
-        metalWeight: runningMetalTotal, 
-        organicWeight: runningOrganicTotal, 
-        totalWeight: currentTotalWeight,
-        landfillDiversion: currentLandfillDiversion,
-        co2Saved: currentCo2Saved
-    };
-    
-    updateDashboard(newData);
-}
-
-/**
  * Updates all charts and stats cards with new data.
  */
 function updateDashboard(data) {
-    // ... (rest of the function is identical to your last version)
     const totalForPercent = data.totalWeight > 0 ? data.totalWeight : 1;
+    
     const plasticPercent = (data.plasticWeight / totalForPercent) * 100;
     const metalPercent = (data.metalWeight / totalForPercent) * 100;
     const organicPercent = (data.organicWeight / totalForPercent) * 100;
