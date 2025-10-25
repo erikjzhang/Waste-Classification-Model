@@ -1,0 +1,6 @@
+streamlit
+tensorflow
+firebase-admin
+numpy
+pandas
+Pillow
