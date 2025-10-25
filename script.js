@@ -561,7 +561,7 @@ function handleSideNavActiveState() {
     }
     
     navLinks.forEach((link, section) => {
-        if (section === currentSection) {
+        if (section === currentSecti) {
             link.classList.add('active');
         } else {
             link.classList.remove('active');
