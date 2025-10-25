@@ -9,12 +9,70 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <canvas id="massPieChart" style="max-height: 400px;"></canvas>
     <!-- Your Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!--hey guys this is all of the firebase/colab configuration stuff to get the data from there to here-->
+    <script type="module">
+  // 1. Import necessary Firebase modules
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+  import { getFirestore, collection, query, onSnapshot, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+  // 2. PASTE YOUR CONFIG HERE (This is public and safe for GitHub)
+const firebaseConfig = {
+  apiKey: "AIzaSyBL0k6AE5NBpVOQPEEGsKRMc48yDuEGonc",
+  authDomain: "ai-waste-classification-d07a6.firebaseapp.com",
+  projectId: "ai-waste-classification-d07a6",
+  storageBucket: "ai-waste-classification-d07a6.firebasestorage.app",
+  messagingSenderId: "512015830235",
+  appId: "1:512015830235:web:cb0f09269ff5b9e8d010fe",
+  measurementId: "G-4T8NKD7K74"
+};
+    // ... rest of config
+  };
+
+  // 3. Initialize App and Database
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // 4. Set up the Live Listener (Pulls the latest aggregated stats)
+  // We query the 'live_conveyor_belt_stats' collection, order by timestamp, and take only the latest one.
+  const statsQuery = query(
+    collection(db, "live_conveyor_belt_stats"),
+    orderBy("timestamp", "desc"),
+    limit(1)
+  );
+
+  onSnapshot(statsQuery, (querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      const liveData = doc.data();
+
+      // --- 5. DATA EXTRACTION ---
+      const percents = liveData.percent_composition;
+      const totalMass = liveData.total_mass_kg;
+      const co2Avoided = liveData.environmental_impact.total_co2_avoided_kg;
+
+      console.log("New Live Data Received:", percents);
+
+      // --- 6. UPDATE YOUR VISUALS ---
+      // This is where you write code to update your charts/HTML elements.
+      document.getElementById('total-mass').innerText = totalMass.toFixed(2) + ' kg';
+      document.getElementById('co2-avoided').innerText = co2Avoided.toFixed(2) + ' kg CO₂e';
+      
+      // Example: Update a percentage bar/pie chart for 'plastic'
+      // You must create HTML elements with IDs like 'plastic-percent'
+      if (percents.plastic) {
+         document.getElementById('plastic-percent').style.width = percents.plastic.toFixed(1) + '%';
+         document.getElementById('plastic-value').innerText = percents.plastic.toFixed(1) + '%';
+      }
+      // Repeat for metal, organic, glass...
+    });
+  });
+</script>
     <!-- This canvas will hold the 3D scene -->
     <canvas id="bg-canvas"></canvas>
 
