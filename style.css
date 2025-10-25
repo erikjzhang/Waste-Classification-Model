@@ -189,7 +189,7 @@ body {
     text-align: center;
     padding: 0 1.5rem;
     /* Humanitarian background image */
-    background-image: linear-gradient(rgba(17, 75, 95, 0.6), rgba(17, 75, 95, 0.6)), url('https://images.pexels.com/photos/7947147/pexels-photo-7947147.jpeg');
+    background-image: linear-gradient(rgba(17, 75, 95, 0.6), rgba(17, 75, 95, 0.6)), url('https://www.cdmsmith.com/-/media/insights/pfas-and-leachate/pfas-landfill-leachate_hero/pfaslandfillleachateherojpeg_16x9.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed; /* Parallax-like effect */
