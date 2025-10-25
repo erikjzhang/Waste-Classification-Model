@@ -8,7 +8,7 @@
     --color-text-dark: #8892b0;     /* Subdued text */
     --color-white: #FFFFFF;         /* Pure white for stats */
     
-    --font-main: 'Playfair Display', sans-serif;
+    --font-main: 'Playfair Display', serif;
 }
 
 /* --- Base & Body Styles --- */
