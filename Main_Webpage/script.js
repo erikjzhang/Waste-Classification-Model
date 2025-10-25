@@ -4,15 +4,58 @@ let percentageChart, weightChart;
 
 // This runs when the page is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Add scroll listener for header
-    window.addEventListener('scroll', handleHeaderScroll);
+    // --- HEADER SCROLL LOGIC ---
+    const header = document.getElementById('header');
+    if (header) {
+        // Check if we are on the home page (which has the 'home' hero section)
+        if (document.getElementById('home')) {
+            // Only add scroll listener on the home page
+            window.addEventListener('scroll', handleHeaderScroll);
+        } else {
+            // On other pages (like about.html), make the header solid from the start
+            header.classList.add('scrolled');
+        }
+    }
 
-    // Initialize charts
-    initPercentageChart();
-    initWeightChart();
+    // --- SMOOTH SCROLL LOGIC ---
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            // Get the full URL path of the link and the current page
+            const linkPath = new URL(this.href, window.location.origin).pathname;
+            const currentPath = window.location.pathname;
+
+            // Only smooth scroll if the link is on the *current* page
+            if (linkPath === currentPath && this.hash !== "") {
+                e.preventDefault(); // Stop the default jump
+                const targetElement = document.querySelector(this.hash);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            }
+            // If the link goes to another page (e.g., index.html#dashboard from about.html),
+            // the browser will handle the navigation normally.
+        });
+    });
+
+
+    // --- CHART INITIALIZATION ---
+    // Only try to create charts if the canvas elements exist on the page
+    const percentageChartCtx = document.getElementById('wastePercentageChart');
+    if (percentageChartCtx) {
+        initPercentageChart(percentageChartCtx.getContext('2d'));
+    }
+
+    const weightChartCtx = document.getElementById('wasteWeightChart');
+    if (weightChartCtx) {
+        initWeightChart(weightChartCtx.getContext('2d'));
+    }
     
-    // Start the "live" data simulation
-    setInterval(simulateDataUpdate, 3000); // Update every 3 seconds
+    // Start simulation *only* if both charts were initialized
+    if (percentageChart && weightChart) {
+        setInterval(simulateDataUpdate, 3000); // Update every 3 seconds
+    }
 });
 
 /**
