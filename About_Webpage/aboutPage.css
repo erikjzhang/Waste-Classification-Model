@@ -1,15 +1,17 @@
-/* --- Color Palette & Root Variables --- */
+/* --- Dark/Immersive Color Palette & Root Variables (MATCHING HOME) --- */
 :root {
-    --color-dark-blue: #114B5F;
-    --color-green: #1A936F;
-    --color-light-green: #88D498;
-    --color-pale-green: #C6DABF;
-    --color-cream: #F3E9D2;
+    --color-dark-blue: #0a192f;      /* Main background */
+    --color-light-blue: #112240;     /* Lighter background (for sections, cards) */
+    --color-accent-cyan: #64ffda;    /* Bright accent */
+    --color-accent-teal: #00c2cb;    /* Secondary accent - Replaces light-green/green */
+    --color-text-light: #ccd6f6;     /* Main light text - Replaces color-cream */
+    --color-text-dark: #8892b0;      /* Subdued text - Replaces color-pale-green */
     --color-white: #FFFFFF;
-    --font-main: 'Playfair Display', sans-serif;
+    
+    --font-main: 'Playfair Display', serif; /* Changed to 'serif' to match home file */
 }
 
-/* --- Base & Body Styles --- */
+/* --- Base & Body Styles (MATCHING HOME) --- */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -18,57 +20,12 @@
 
 body {
     font-family: var(--font-main);
-    background-color: var(--color-cream);
-    color: var(--color-dark-blue);
+    background-color: var(--color-dark-blue); /* Dark background */
+    color: var(--color-text-dark); /* Subdued text color */
     line-height: 1.6;
 }
 
-/* Styling for the new hero section on the About Page */
-/* --- Base & Body Styles --- (Lines 10-21) */
-/* ... (existing code) ... */
-
-/* Styling for the new hero section on the About Page */
-.hero-about {
-    /* Inherit main hero properties for height, background, etc. */
-    min-height: 50vh; /* Shorter than the main hero */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* text-align: center; is already here, but let's ensure the content block respects it */
-    padding: 100px 20px;
-    position: relative;
-    z-index: 1;
-}
-
-/* Ensure the hero-title and hero-subtitle styles are used */
-.hero-about .hero-content {
-    /* Center the content */
-    max-width: 800px;
-    padding: 20px;
-    /* ADD THIS LINE to center the text elements (H1 and P) inside this container */
-    text-align: center;
-}
-
-/* You will also need to define the look of the h1 and p elements */
-.hero-about .hero-content .hero-title {
-    font-size: 4rem; 
-    font-weight: 900;
-    line-height: 1.1;
-    margin-bottom: 1rem;
-    color: var(--color-dark-blue); /* Assuming you want the main text color */
-}
-
-.hero-about .hero-content .hero-subtitle {
-    font-size: 1.5rem;
-    color: var(--color-green); /* Use your accent color */
-    font-weight: 400;
-}
-
-/* ... (rest of the existing CSS file) ... */
-    /* I JUST ADDED THIS STARTING AT LINE 26 MAY NEED TO REMOVE */
-
-
-/* --- Utility Classes --- */
+/* --- Utility Classes (MATCHING HOME) --- */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -80,10 +37,10 @@ body {
     font-weight: 700;
     text-align: center;
     margin-bottom: 3rem;
-    color: var(--color-dark-blue);
+    color: var(--color-text-light); /* Light text for titles */
 }
 
-/* --- Header --- */
+/* --- Header (Glassmorphism, MATCHING HOME) --- */
 .header {
     position: fixed;
     top: 0;
@@ -97,8 +54,9 @@ body {
 
 /* This class is applied by about.js immediately */
 .header.scrolled {
-    background-color: var(--color-white);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: rgba(10, 25, 47, 0.85); /* Dark semi-transparent */
+    backdrop-filter: blur(10px); /* Added glassmorphism effect */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .header-nav {
@@ -110,12 +68,10 @@ body {
 .header-logo {
     font-size: 1.75rem;
     font-weight: 800;
-    color: var(--color-dark-blue);
+    color: var(--color-accent-cyan); /* Accent color for logo */
 }
 
-.header.scrolled .header-logo {
-    color: var(--color-dark-blue);
-}
+/* Removed redundant .header.scrolled .header-logo rule */
 
 .header-links a {
     font-size: 1rem;
@@ -123,33 +79,86 @@ body {
     text-decoration: none;
     margin-left: 2rem;
     transition: color 0.3s ease;
+    color: var(--color-text-light); /* Default link color */
 }
 
+/* Ensure links are white when scrolled for contrast */
 .header.scrolled .header-links a {
-     color: var(--color-dark-blue);
+     color: var(--color-text-light); 
 }
 .header-links a:hover {
-    color: var(--color-light-green);
+    color: var(--color-accent-cyan); /* Accent color on hover */
 }
 
-/* --- About Section --- */
+
+/* --- About Hero Section (Adapted to Dark Style) --- */
+/* The hero is the main content of the About page, so it needs to be styled for the new dark theme. */
+.hero-about {
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 20px;
+    position: relative;
+    z-index: 10; /* Put above any potential canvas element */
+    /* Add a dark background image/color to maintain home page style feel */
+    background-color: var(--color-dark-blue);
+    color: var(--color-text-light);
+}
+
+.hero-about .hero-content {
+    max-width: 800px;
+    padding: 20px;
+    text-align: center;
+}
+
+.hero-about .hero-content .hero-title {
+    font-size: 4rem; 
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    color: var(--color-white); /* Use pure white for main title */
+}
+
+.hero-about .hero-content .hero-subtitle {
+    font-size: 1.5rem;
+    color: var(--color-accent-cyan); /* Use bright accent color */
+    font-weight: 400;
+}
+
+
+/* --- About Section (Adapted to Dark/Floating Style) --- */
+/* Match the 'floating' style of the home page content sections */
 .about-section {
     padding: 5rem 0;
-    background-color: var(--color-pale-green);
+    background-color: transparent; /* Transparent to float over a possible background like on home page */
+    color: var(--color-text-light); /* Light text on dark background */
 }
 
 .about-content {
     max-width: 800px;
     font-size: 1.1rem;
+    /* Apply the glassmorphism card style from the home page */
+    background-color: rgba(17, 34, 64, 0.85); /* Semi-transparent */
+    backdrop-filter: blur(10px);
+    padding: 2.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(100, 255, 218, 0.1);
+    margin: 0 auto; /* Center the floating card */
 }
 
 .about-content h2 {
     text-align: center;
     margin-bottom: 2rem;
+    color: var(--color-accent-cyan); /* Highlight headings */
 }
 
 .about-content p, .about-content ul {
     margin-bottom: 1.5rem;
+    color: var(--color-text-dark); /* Subdued text color for body */
+}
+.about-content p strong {
+    color: var(--color-text-light); /* Make bold text stand out */
 }
 
 .about-content ul {
@@ -160,15 +169,7 @@ body {
     margin-bottom: 0.5rem;
 }
 
-/* --- Footer --- */
-.footer {
-    padding: 3rem 0;
-    background-color: var(--color-dark-blue);
-    color: var(--color-pale-green);
-    text-align: center;
-}
-
-/* --- Subpage Padding --- */
+/* --- Subpage Padding (Kept for layout) --- */
 /* This class adds padding to the top of subpages (like about.html) 
    so the content doesn't hide behind the fixed header. */
 .subpage-content {
@@ -176,8 +177,24 @@ body {
 }
 
 
-/* --- Responsive --- */
+/* --- Footer (MATCHING HOME) --- */
+.footer {
+    padding: 3rem 0;
+    background-color: var(--color-dark-blue); /* Opaque footer */
+    color: var(--color-text-dark);
+    text-align: center;
+    position: relative;
+    z-index: 20; /* Ensure it sits over any background element */
+}
+
+/* --- Responsive (MATCHING HOME) --- */
 @media (max-width: 768px) {
+    .hero-about .hero-content .hero-title {
+        font-size: 2.5rem; /* Match home page responsive title size */
+    }
+    .hero-about .hero-content .hero-subtitle {
+        font-size: 1.25rem; /* Match home page responsive subtitle size */
+    }
     .header-nav {
         flex-direction: column;
         gap: 0.5rem;
@@ -185,9 +202,17 @@ body {
     .header-links {
         display: flex;
         justify-content: center;
+        flex-wrap: wrap; /* Added flex-wrap from home file */
         width: 100%;
     }
     .header-links a {
-        margin: 0 1rem;
+        margin: 0 0.5rem; /* Adjusted margin to match home file */
     }
 }
+
+
+
+
+
+
+
