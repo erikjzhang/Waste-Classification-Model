@@ -1,4 +1,4 @@
-/* --- Dark/Immersive Color Palette & Root Variables (MATCHING HOME) --- */
+/* --- Dark/Immersive Color Palette & Root Variables --- */
 :root {
     --color-dark-blue: #0a192f;      /* Main background */
     --color-light-blue: #112240;     /* Lighter background (for sections, cards) */
@@ -11,7 +11,7 @@
     --font-main: 'Playfair Display', serif;
 }
 
-/* --- Base & Body Styles (MATCHING HOME) --- */
+/* --- Base & Body Styles  --- */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -25,7 +25,7 @@ body {
     line-height: 1.6;
 }
 
-/* --- 3D Canvas Styling (FROM HOME) --- */
+/* --- 3D Canvas Styling --- */
 #bg-canvas {
     position: fixed;
     top: 0;
@@ -35,7 +35,7 @@ body {
     z-index: 1; /* Sits behind content */
 }
 
-/* --- Main Content Stacking (FROM HOME) --- */
+/* --- Main Content Stacking --- */
 main {
     position: relative;
     z-index: 10; /* Sits in front of the canvas */
@@ -43,7 +43,7 @@ main {
     overflow-x: hidden;
 }
 
-/* --- Utility Classes (MATCHING HOME) --- */
+/* --- Utility Classes --- */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -58,7 +58,7 @@ main {
     color: var(--color-text-light); /* Light text for titles */
 }
 
-/* --- Header (Glassmorphism, MATCHING HOME) --- */
+/* --- Header (Glassmorphism) --- */
 .header {
     position: fixed;
     top: 0;
@@ -101,7 +101,6 @@ main {
     color: var(--color-accent-cyan); /* Accent color on hover */
 }
 
-/* ADDED: Style for the active page link */
 .header-links a.active-link {
     color: var(--color-accent-cyan);
     font-weight: 700;
@@ -141,18 +140,16 @@ main {
 }
 
 
-/* --- Content Sections (Floating) (FROM HOME) --- */
-/* This style now correctly targets your HTML's <section class="content-section"> */
+/* --- Content Sections (Floating) --- */
 .content-section {
-    /* Changed from 100vh to padding for a better multi-section page flow */
     padding: 5rem 0; 
     display: flex;
     align-items: center;
+    justify-content: center; /* Ensures content container is centered */
     background-color: transparent; /* Floats over canvas */
 }
 
-/* This is the floating text box (FROM HOME) */
-/* This style now correctly targets your HTML's <div class="content-container"> */
+/* This is the floating text box */
 .content-container {
     max-width: 800px;
     font-size: 1.1rem;
@@ -170,7 +167,7 @@ main {
     color: var(--color-text-light); /* Make bold text stand out */
 }
 
-/* --- NEW: Styles for About Page specific content --- */
+/* --- About Page: Specific Content & Team Styles --- */
 .subsection-title {
     color: var(--color-text-light);
     font-size: 1.25rem;
@@ -200,46 +197,16 @@ main {
     text-align: center;
 }
 
-/* --- Base Styles for the Team Section --- */
-.content-section {
-    padding: 60px 20px;
-    background-color: #1a1a2e; /* Dark background for good contrast */
-    color: #ffffff;
-}
-
-.section-title {
-    text-align: center;
-    margin-bottom: 40px;
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #64ffda; /* Accent color for titles */
-}
-
-/* --- Base Styles for the Team Section --- */
-.content-section {
-    padding: 60px 20px;
-    background-color: #1a1a2e; /* Example Dark Background */
-    color: #ffffff;
-}
-
-.section-title {
-    text-align: center;
-    margin-bottom: 40px;
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #64ffda; /* Example Accent Color */
-}
-
 /* --- Team Grid: Vertical Stacking for Alternating Layout --- */
 .team-grid {
     display: flex;
     flex-direction: column; /* This ensures each member card stacks below the last */
     gap: 40px; /* Space between each member card */
+    width: 100%; /* Ensure grid takes up container width */
 }
 
 /* --- Team Member Card: Side-by-Side Flex Layout --- */
 .team-member-card {
-    /* Set up Flexbox for the side-by-side layout (Image + Text) */
     display: flex;
     align-items: center; /* Vertically center image and text */
     gap: 40px; /* Space between the image and info */
@@ -247,10 +214,12 @@ main {
     margin: 0 auto; /* Center the entire card horizontally */
     padding: 30px;
     border-radius: 10px;
-    background-color: #2a2a4a; /* Card background */
+    background-color: var(--color-light-blue);
+    /* Add border to match floating card style */
+    border: 1px solid rgba(100, 255, 218, 0.1); 
 }
 
-/* --- ALTERNATING LAYOUT FIX: Reverses the order of the Image/Text --- */
+/* --- ALTERNATING LAYOUT: Reverses the order of the Image/Text --- */
 .team-member-card.reverse-order {
     flex-direction: row-reverse;
 }
@@ -261,7 +230,7 @@ main {
     min-width: 150px;
     height: 150px;
     border-radius: 50%;
-    border: 3px solid #64ffda;
+    border: 3px solid var(--color-accent-cyan);
     overflow: hidden; /* CRUCIAL: Clips the image to the circle */
     flex-shrink: 0; /* Prevents the image from shrinking */
 }
@@ -278,6 +247,26 @@ main {
 .team-member-info {
     flex-grow: 1; /* Allows the text block to fill the remaining space */
 }
+.team-member-info p {
+    color: var(--color-text-dark);
+    margin-bottom: 1rem;
+}
+.team-member-info p:last-child {
+    margin-bottom: 0;
+}
+.team-member-name {
+    color: var(--color-text-light);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+.team-member-role {
+    color: var(--color-accent-cyan);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
 
 .team-member-card.reverse-order .team-member-info {
     /* Optional: Right-align text in reversed cards for visual balance */
@@ -300,7 +289,7 @@ main {
     }
 }
 
-/* --- Footer (MATCHING HOME) --- */
+/* --- Footer --- */
 .footer {
     padding: 3rem 0;
     background-color: var(--color-dark-blue); /* Opaque footer */
@@ -310,7 +299,7 @@ main {
     z-index: 20; /* Ensure it sits over any background element */
 }
 
-/* --- Responsive (MATCHING HOME) --- */
+/* --- Responsive --- */
 @media (max-width: 768px) {
     .hero-about .hero-content .hero-title {
         font-size: 2.5rem; /* Match home page responsive title size */
