@@ -166,7 +166,9 @@ function setupFirebaseListener() {
             updateDashboard({ 
                 total_items: 0, 
                 item_distribution_count: {}, 
-                percent_composition: {} 
+                percent_composition: {},
+                total_co2_avoided: 0, // **** ADDED ****
+                aggCO2_by_category: {} // **** ADDED ****
             });
             return;
         }
@@ -176,6 +178,8 @@ function setupFirebaseListener() {
         let aggTotalItems = 0;
         let aggCounts = { plastic: 0, metal: 0, organic: 0, glass: 0 };
         let docCount = 0; // <<< ADDED: Counter for debugging
+        let aggCO2 = { plastic: 0, metal: 0, organic: 0, glass: 0 };
+        let totalAggCO2 = 0;
         let skippedDocs = 0; // <<< ADDED: Counter for debugging
 
         console.log(`Snapshot received, processing ${snapshot.size} documents...`); // <<< ADDED: Helpful log
@@ -191,14 +195,37 @@ function setupFirebaseListener() {
             }
             
             // Safety check for the NEW data structure
-            if (data && data.item_distribution_count) { // <<< THIS IS THE SUSPECT
-                aggTotalItems += data.total_items || 0;
+            if (data && data.item_distribution_count) { 
                 
-                // Add to each mass type
-                aggCounts.plastic += data.item_distribution_count.plastic || 0;
-                aggCounts.metal   += data.item_distribution_count.metal   || 0;
-                aggCounts.organic += data.item_distribution_count.organic || 0;
-                aggCounts.glass   += data.item_distribution_count.glass   || 0;
+                // --- 1. Aggregate Item Counts (for Bar Chart) ---
+                const plasticCount = data.item_distribution_count.plastic || 0;
+                const metalCount = data.item_distribution_count.metal   || 0;
+                const organicCount = data.item_distribution_count.organic || 0;
+                const glassCount = data.item_distribution_count.glass   || 0;
+
+                // --- FIX: Calculate total_items manually from counts ---
+                const docTotalItems = plasticCount + metalCount + organicCount + glassCount;
+                
+                aggTotalItems += docTotalItems; // Use our calculated total instead
+                aggCounts.plastic += plasticCount;
+                aggCounts.metal   += metalCount;
+                aggCounts.organic += organicCount;
+                aggCounts.glass   += glassCount;
+
+                // --- 2. Aggregate CO2 (for Doughnut Chart) ---
+                // Prorate the doc's total CO2 based on its item counts
+                if (data.environmental_impact && docTotalItems > 0) { // <<< FIX
+                    const docCO2 = data.environmental_impact.total_co2_avoided_kg || 0;
+                    const avgCO2PerItem = docCO2 / docTotalItems; // <<< FIX
+
+                    aggCO2.plastic += avgCO2PerItem * plasticCount;
+                    aggCO2.metal   += avgCO2PerItem * metalCount;
+                    aggCO2.organic += avgCO2PerItem * organicCount;
+                    aggCO2.glass   += avgCO2PerItem * glassCount;
+                    
+                    totalAggCO2 += docCO2; // Add to the grand total
+                }
+
             } else {
                 // --- ADDED: Log if a document is skipped ---
                 skippedDocs++;
@@ -211,21 +238,23 @@ function setupFirebaseListener() {
             console.warn(`Check your 'FIRST DOCUMENT DATA' log. The code is looking for a field named 'item_distribution_count', but it's not finding it.`);
         }
 
-        // 3. Calculate new percentages based on the new total count
-        const totalForPercent = aggTotalItems > 0 ? aggTotalItems : 1; // Avoid divide-by-zero
-        let aggPercent = {
-            plastic: (aggCounts.plastic / totalForPercent) * 100,
-            metal:   (aggCounts.metal   / totalForPercent) * 100,
-            organic: (aggCounts.organic / totalForPercent) * 100,
-            glass:   (aggCounts.glass   / totalForPercent) * 100
+        // 3. Calculate new percentages based on CO2 contribution
+        const totalCO2ForPercent = totalAggCO2 > 0 ? totalAggCO2 : 1; // Avoid divide-by-zero
+        let aggPercent = { // This object is now CO2 percentages
+            plastic: Math.round((aggCO2.plastic / totalCO2ForPercent) * 100),
+            metal:   Math.round((aggCO2.metal   / totalCO2ForPercent) * 100),
+            organic: Math.round((aggCO2.organic / totalCO2ForPercent) * 100),
+            glass:   Math.round((aggCO2.glass   / totalCO2ForPercent) * 100)
         };
 
         // 4. Build the final aggregated object
+        // **** MODIFIED THIS OBJECT ****
         const finalAggregatedData = {
             total_items: aggTotalItems,
             item_distribution_count: aggCounts,
-            percent_composition: aggPercent
-            // environmental_impact is no longer needed
+            percent_composition: aggPercent,
+            total_co2_avoided: totalAggCO2,
+            aggCO2_by_category: aggCO2 // <-- ADDED THIS FOR TOOLTIP
         };
 
         console.log("✅ AGGREGATED COUNT DATA:", finalAggregatedData);
@@ -244,6 +273,7 @@ function setupFirebaseListener() {
 /**
  * Initializes the Doughnut chart
  */
+// **** MODIFIED THIS FUNCTION ****
 function initPercentageChart(ctx) {
     if (!ctx) return;
     percentageChart = new Chart(ctx, {
@@ -251,8 +281,9 @@ function initPercentageChart(ctx) {
         data: {
             labels: ['Plastic', 'Metal', 'Organic', 'Glass'],
             datasets: [{
-                label: 'Waste Composition',
+                label: 'CO2 Avoided (by %)',
                 data: [0, 0, 0, 0], 
+                rawCO2: [0, 0, 0, 0], // Custom property to hold raw CO2 values
                 backgroundColor: [  CHART_COLORS.plastic,
                                     CHART_COLORS.metal,
                                     CHART_COLORS.organic,
@@ -263,7 +294,34 @@ function initPercentageChart(ctx) {
         },
         options: {
             responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { color: '#ccd6f6', font: { family: 'Playfair Display', size: 14 } } } }
+            plugins: { 
+                legend: { 
+                    position: 'bottom', 
+                    labels: { 
+                        color: '#ccd6f6', 
+                        font: { family: 'Playfair Display', size: 14 } 
+                    } 
+                },
+                // --- NEW: Add tooltip configuration ---
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const percent = context.parsed;
+                            
+                            // Access our custom rawCO2 data
+                            const rawCO2 = context.dataset.rawCO2[context.dataIndex];
+                            
+                            // Format the strings
+                            const percentString = `${percent}%`;
+                            const co2String = `${rawCO2.toFixed(2)} kg CO2 Avoided`;
+                            
+                            // Return an array of strings for multi-line tooltip
+                            return [label, percentString, co2String];
+                        }
+                    }
+                }
+            }
         }
     });
 }
@@ -317,11 +375,14 @@ function initWeightChart(ctx) {
 /**
  * Updates all charts and stats cards with new data from the aggregated document.
  */
+// **** MODIFIED THIS FUNCTION ****
 function updateDashboard(data) {
     // 1. EXTRACT NEW DATA
     const counts = data.item_distribution_count || {}; 
     const percentComposition = data.percent_composition || {}; 
     const totalItems = data.total_items || 0;
+    const totalCO2 = data.total_co2_avoided || 0;
+    const co2ByCat = data.aggCO2_by_category || {}; // <-- ADDED
 
     // Helper to safely get count, defaulting to 0
     const getCount = (cls) => counts[cls] || 0;
@@ -338,9 +399,16 @@ function updateDashboard(data) {
     const organicPercent = percentComposition['organic'] || 0;
     const glassPercent = percentComposition['glass'] || 0;
 
+    // --- NEW: Get raw CO2 values ---
+    const plasticCO2 = co2ByCat['plastic'] || 0;
+    const metalCO2 = co2ByCat['metal'] || 0;
+    const organicCO2 = co2ByCat['organic'] || 0;
+    const glassCO2 = co2ByCat['glass'] || 0;
+
     // 4. Update DOM Metrics (REMOVED old ones)
     // Assumes you have a new HTML element with id="totalItems"
     document.getElementById('totalItems').innerText = totalItems; // Just the number
+    document.getElementById('totalCO2').innerText = totalCO2.toFixed(2) + ' kg';
 
     /* --- REMOVED ---
     document.getElementById('totalWeight').innerText = ...
@@ -352,6 +420,8 @@ function updateDashboard(data) {
     if (percentageChart) {
         // This chart still works, as percentages are still valid
         percentageChart.data.datasets[0].data = [plasticPercent, metalPercent, organicPercent, glassPercent];
+        // --- NEW: Attach raw CO2 data to the dataset ---
+        percentageChart.data.datasets[0].rawCO2 = [plasticCO2, metalCO2, organicCO2, glassCO2];
         percentageChart.update();
     }
     if (weightChart) {

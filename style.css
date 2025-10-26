@@ -375,6 +375,16 @@ main {
     height: 350px;
 }
 
+.chart-subtitle {
+    font-size: 1.75rem;
+    font-weight: 400;
+    color: var(--color-text-light);
+    text-align: center;
+    margin-top: -1.9rem; /* Pulls it up under the title */
+    margin-bottom: 1rem; /* Adds a little space before the chart */
+    height: 1.5rem; /* Prevents layout shift when number loads */
+}
+
 /* --- Footer --- */
 .footer {
     padding: 3rem 0;
