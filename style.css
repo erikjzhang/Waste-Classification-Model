@@ -29,22 +29,22 @@ body {
     line-height: 1.6;
 }
 
-/* --- NEW: 3D Canvas Styling --- */
+
 #bg-canvas {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100vh;
-    z-index: 1; /* Sits behind content */
+    z-index: 1; 
 }
 
 /* --- Main Content Stacking --- */
 main {
     position: relative;
-    z-index: 10; /* Sits in front of the canvas */
+    z-index: 10; 
     width: 100%;
-    overflow-x: hidden; /* Prevents horizontal scroll */
+    overflow-x: hidden; 
 }
 
 /* --- Utility Classes --- */
@@ -68,7 +68,7 @@ main {
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 1000; /* Stays on top of everything */
+    z-index: 1000; 
     background-color: transparent;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
     padding: 1rem 0;
@@ -113,25 +113,25 @@ main {
 }
 
 /* --- Side Navigation (Glassmorphism) --- */
-/* (Removed duplicate rule) */
+
 .side-nav {
     position: fixed;
     left: 20px;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 999; /* Below header, above content */
+    z-index: 999; 
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
 .side-nav-link {
-    display: flex; /* Use Flexbox for alignment */
+    display: flex; 
     align-items: center;
-    justify-content: flex-start; /* Align dot to the left */
-    width: 48px; /* Default width */
+    justify-content: flex-start; 
+    width: 48px; 
     height: 48px;
-    padding: 12px 18px; /* 18px left/right padding centers the 12px dot */
+    padding: 12px 18px; 
     border-radius: 50%;
     background-color: rgba(40, 58, 83, 0.5);
     backdrop-filter: blur(5px);
@@ -148,22 +148,20 @@ main {
     white-space: nowrap;
 }
 
-/* This is the EXPANDED state (Hover or Active) */
 .side-nav-link:hover,
 .side-nav-link.active {
-    width: 160px; /* Expanded width */
+    width: 160px; 
     border-radius: 30px;
     background-color: var(--color-light-blue);
-    justify-content: center; /* This will now center the <span> */
-    padding: 12px 20px; /* Symmetrical padding */
-    position: relative; /* Add this to anchor the dot */
+    justify-content: center; 
+    padding: 12px 20px; 
+    position: relative; 
 }
 
-/* NEW: Position the dot absolutely ONLY when expanded */
 .side-nav-link:hover::before,
 .side-nav-link.active::before {
     position: absolute;
-    left: 18px; /* Positions dot 18px from the left edge */
+    left: 18px; 
     top: 50%;
     transform: translateY(-50%);
 }
@@ -202,13 +200,13 @@ main {
     justify-content: center;
     text-align: center;
     padding: 0 1.5rem;
-    /* This section still uses its image, fading to the 3D scene */
+    
     background-image: linear-gradient(rgba(10, 25, 47, 0.7), rgba(10, 25, 47, 0.7)), url('https://www.cdmsmith.com/-/media/insights/pfas-and-leachate/pfas-landfill-leachate_hero/pfaslandfillleachateherojpeg_16x9.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     color: var(--color-text-light);
-    z-index: 5; /* Above canvas, below main content */
+    z-index: 5; 
 }
 
 .hero-content {
@@ -255,19 +253,18 @@ main {
 
 /* --- Content Sections (Floating) --- */
 .content-section {
-    padding: 10rem 0; /* More padding to allow for scrolling */
-    min-height: 100vh; /* Make sections take up screen height */
+    padding: 10rem 0; 
+    min-height: 100vh; 
     display: flex;
     align-items: center;
-    background-color: transparent; /* Floats over canvas */
+    background-color: transparent; 
 }
 
 /* This is the floating text box */
 .content-container {
     max-width: 800px;
     font-size: 1.1rem;
-    /* Add a backdrop for readability */
-    background-color: rgba(17, 34, 64, 0.85); /* Semi-transparent */
+    background-color: rgba(17, 34, 64, 0.85); 
     backdrop-filter: blur(10px);
     padding: 2.5rem;
     border-radius: 12px;
@@ -280,10 +277,10 @@ main {
 /* --- Dashboard Section (Stays Opaque) --- */
 .dashboard-section {
     padding: 5rem 0;
-    /* This section is opaque, covering the canvas */
+
     background-color: var(--color-dark-blue);
     position: relative;
-    z-index: 20; /* Ensure it draws over the canvas */
+    z-index: 20; 
 }
 
 .live-indicator {
@@ -318,7 +315,7 @@ main {
 
 /* === UPDATED STATS GRID === */
 .stats-grid {
-    /* This will center a single card with a flexible width */
+
     grid-template-columns: minmax(300px, 400px);
     justify-content: center;
     margin-bottom: 3rem;
@@ -343,7 +340,7 @@ main {
     font-weight: 600;
     color: var(--color-text-light);
     margin-bottom: 0.5rem;
-    text-align: center; /* Center the title for the single card */
+    text-align: center; 
 }
 
 .card-title-center {
@@ -358,7 +355,7 @@ main {
     font-size: 2.75rem;
     font-weight: 700;
     color: var(--color-white);
-    text-align: center; /* Center the stat for the single card */
+    text-align: center; 
 }
 
 /* === UPDATED STAT STYLES === */
@@ -367,7 +364,7 @@ main {
     color: var(--color-accent-cyan) !important;
 }
 
-/* (REMOVED #landfillDiversion and #co2Saved styles) */
+
 
 /* --- Chart Container --- */
 .chart-container {
@@ -380,19 +377,19 @@ main {
     font-weight: 400;
     color: var(--color-text-light);
     text-align: center;
-    margin-top: -1.9rem; /* Pulls it up under the title */
-    margin-bottom: 1rem; /* Adds a little space before the chart */
-    height: 1.5rem; /* Prevents layout shift when number loads */
+    margin-top: -1.9rem; 
+    margin-bottom: 1rem; 
+    height: 1.5rem;
 }
 
 /* --- Footer --- */
 .footer {
     padding: 3rem 0;
-    background-color: var(--color-dark-blue); /* Opaque footer */
+    background-color: var(--color-dark-blue); 
     color: var(--color-text-dark);
     text-align: center;
     position: relative;
-    z-index: 20; /* Sits over canvas */
+    z-index: 20; 
 }
 
 /* --- Preloader --- */
@@ -402,7 +399,7 @@ main {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 9999; /* Sits on top of all other content */
+    z-index: 9999; 
     
     background-color: var(--color-dark-blue);
     
@@ -419,7 +416,7 @@ main {
 }
 
 .loader-logo {
-    font-size: 2.5rem; /* A bit larger for the loader */
+    font-size: 2.5rem; 
     font-weight: 800;
     color: var(--color-accent-cyan);
     margin-bottom: 1.5rem;
@@ -429,8 +426,8 @@ main {
 .loader-spinner {
     width: 50px;
     height: 50px;
-    border: 4px solid var(--color-light-blue); /* Spinner track */
-    border-top-color: var(--color-accent-cyan); /* Spinner color */
+    border: 4px solid var(--color-light-blue); 
+    border-top-color: var(--color-accent-cyan); 
     border-radius: 50%;
     animation: spin 1s linear infinite;
     opacity: 0;
@@ -468,7 +465,6 @@ main {
     .side-nav {
         display: none;
     }
-    /* Adjust content section padding for mobile */
     .content-section {
         padding: 5rem 0;
     }
