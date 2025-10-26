@@ -236,16 +236,26 @@ main {
     background-color: #2a2a4a; /* Slight contrast for card background */
 }
 
-/* --- Image Styling (Profile Picture) --- */
+/* --- 1. Update the Image Container (team-member-img) --- */
 .team-member-img {
-    /* Assuming you'll put an <img> tag inside this div */
     width: 150px;
-    min-width: 150px; /* Ensure it doesn't shrink */
+    min-width: 150px;
     height: 150px;
-    border-radius: 50%;
+    border-radius: 50%; /* This makes the container circular */
     background-color: #45456b; /* Placeholder color */
-    border: 3px solid #64ffda; /* Accent border */
-    overflow: hidden;
+    border: 3px solid #64ffda;
+    overflow: hidden; /* **CRUCIAL: Hides any part of the image that extends beyond the circle** */
+    /* Add flex or grid properties if you put the image inside as a background, 
+       but since you're using an <img> tag, this setup is fine. */
+}
+
+.team-member-img img {
+    display: block; /* Removes any default space below the image */
+    width: 100%;    /* Makes the image fill 100% of the container's width */
+    height: 100%;   /* Makes the image fill 100% of the container's height */
+    
+    /* **CRUCIAL: Ensures the image is correctly cropped to cover the area** */
+    object-fit: cover; 
 }
 
 /* --- Text Information Styling --- */
