@@ -56,12 +56,10 @@ const CHART_COLORS = {
 // ================================================================
 
 /**
- * Runs when the HTML is parsed (fast).
- * We only use this to fade IN the preloader.
+ * Purpose: fade IN preloader
  */
 document.addEventListener('DOMContentLoaded', () => {
     // --- Preloader Fade In ---
-    // (Assumes .loader-logo and .loader-spinner start with opacity: 0 in CSS)
     gsap.to([".loader-logo", ".loader-spinner"], {
         opacity: 1,
         duration: 0.5, 
@@ -69,10 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-/**
- * Runs when the page AND all assets (images, scripts, etc.) are fully loaded.
- * This is where we do all the heavy lifting.
- */
+
 window.addEventListener('load', () => {
     
     // --- Chart Initialization ---
@@ -101,14 +96,14 @@ window.addEventListener('load', () => {
     initScrollAnimations();
 
     // --- Firebase Initialization ---
-    initializeFirebase(); // This will now set up the listener
-
+    initializeFirebase(); 
+  
     // --- Preloader Fade Out ---
-    // Now that all setup is done, fade out the preloader gradually.
+
     gsap.to("#preloader", {
         autoAlpha: 0,
         duration: 2.0, 
-        delay: 0.5, // Short pause to let 3D scene render
+        delay: 0.5, 
         ease: "power2.inOut"
     });
 });
@@ -137,7 +132,7 @@ async function initializeFirebase() {
             if (user) {
                 userId = user.uid;
                 console.log("User authenticated. Starting listener...");
-                setupFirebaseListener(); // Now we start the listener
+                setupFirebaseListener();
             } else {
                 userId = null;
                 console.warn("User is signed out. Dashboard may not update.");
@@ -155,20 +150,20 @@ async function initializeFirebase() {
  */
 function setupFirebaseListener() {
     const collectionRef = collection(db, LIVE_COLLECTION_PATH); 
-    const statsQuery = query(collectionRef); // Still gets all documents
+    const statsQuery = query(collectionRef); 
     
     console.log(`Setting up COUNT AGGREGATION listener for collection: ${LIVE_COLLECTION_PATH}`);
     
     onSnapshot(statsQuery, (snapshot) => {
         if (snapshot.empty) {
             console.log("No data found. Waiting for first push from analyzer.");
-            // <<< ADDED: Update to 0 if collection is empty
+          
             updateDashboard({ 
                 total_items: 0, 
                 item_distribution_count: {}, 
                 percent_composition: {},
-                total_co2_avoided: 0, // **** ADDED ****
-                aggCO2_by_category: {} // **** ADDED ****
+                total_co2_avoided: 0, 
+                aggCO2_by_category: {} 
             });
             return;
         }
@@ -177,12 +172,12 @@ function setupFirebaseListener() {
         
         let aggTotalItems = 0;
         let aggCounts = { plastic: 0, metal: 0, organic: 0, glass: 0 };
-        let docCount = 0; // <<< ADDED: Counter for debugging
+        let docCount = 0;
         let aggCO2 = { plastic: 0, metal: 0, organic: 0, glass: 0 };
         let totalAggCO2 = 0;
-        let skippedDocs = 0; // <<< ADDED: Counter for debugging
+        let skippedDocs = 0; 
 
-        console.log(`Snapshot received, processing ${snapshot.size} documents...`); // <<< ADDED: Helpful log
+        console.log(`Snapshot received, processing ${snapshot.size} documents...`); 
 
         snapshot.forEach((doc) => {
             docCount++;
@@ -190,11 +185,10 @@ function setupFirebaseListener() {
 
             // --- ADDED: CRITICAL DEBUGGING LOG ---
             // This will show you EXACTLY what data structure is in Firestore
-            if (docCount === 1) { // Only log the first doc to avoid spamming
+            if (docCount === 1) { 
                 console.log("FIRST DOCUMENT DATA:", JSON.stringify(data, null, 2));
             }
             
-            // Safety check for the NEW data structure
             if (data && data.item_distribution_count) { 
                 
                 // --- 1. Aggregate Item Counts (for Bar Chart) ---
@@ -206,7 +200,7 @@ function setupFirebaseListener() {
                 // --- FIX: Calculate total_items manually from counts ---
                 const docTotalItems = plasticCount + metalCount + organicCount + glassCount;
                 
-                aggTotalItems += docTotalItems; // Use our calculated total instead
+                aggTotalItems += docTotalItems; 
                 aggCounts.plastic += plasticCount;
                 aggCounts.metal   += metalCount;
                 aggCounts.organic += organicCount;
@@ -223,24 +217,24 @@ function setupFirebaseListener() {
                     aggCO2.organic += avgCO2PerItem * organicCount;
                     aggCO2.glass   += avgCO2PerItem * glassCount;
                     
-                    totalAggCO2 += docCO2; // Add to the grand total
+                    totalAggCO2 += docCO2; 
                 }
 
             } else {
-                // --- ADDED: Log if a document is skipped ---
+
                 skippedDocs++;
             }
         });
 
-        // --- ADDED: Log the result of the loop ---
+
         if (docCount > 0 && skippedDocs === docCount) {
             console.warn(`WARNING: Processed ${docCount} documents, but SKIPPED ALL OF THEM.`);
             console.warn(`Check your 'FIRST DOCUMENT DATA' log. The code is looking for a field named 'item_distribution_count', but it's not finding it.`);
         }
 
         // 3. Calculate new percentages based on CO2 contribution
-        const totalCO2ForPercent = totalAggCO2 > 0 ? totalAggCO2 : 1; // Avoid divide-by-zero
-        let aggPercent = { // This object is now CO2 percentages
+        const totalCO2ForPercent = totalAggCO2 > 0 ? totalAggCO2 : 1; 
+        let aggPercent = { 
             plastic: Math.round((aggCO2.plastic / totalCO2ForPercent) * 100),
             metal:   Math.round((aggCO2.metal   / totalCO2ForPercent) * 100),
             organic: Math.round((aggCO2.organic / totalCO2ForPercent) * 100),
@@ -254,11 +248,11 @@ function setupFirebaseListener() {
             item_distribution_count: aggCounts,
             percent_composition: aggPercent,
             total_co2_avoided: totalAggCO2,
-            aggCO2_by_category: aggCO2 // <-- ADDED THIS FOR TOOLTIP
+            aggCO2_by_category: aggCO2 
         };
 
         console.log("✅ AGGREGATED COUNT DATA:", finalAggregatedData);
-        updateDashboard(finalAggregatedData); // Pass the one, final object
+        updateDashboard(finalAggregatedData); 
 
     }, (error) => {
         console.error("Error listening to Firestore: ", error);
@@ -273,7 +267,6 @@ function setupFirebaseListener() {
 /**
  * Initializes the Doughnut chart
  */
-// **** MODIFIED THIS FUNCTION ****
 function initPercentageChart(ctx) {
     if (!ctx) return;
     percentageChart = new Chart(ctx, {
@@ -283,7 +276,7 @@ function initPercentageChart(ctx) {
             datasets: [{
                 label: 'CO2 Avoided (by %)',
                 data: [0, 0, 0, 0], 
-                rawCO2: [0, 0, 0, 0], // Custom property to hold raw CO2 values
+                rawCO2: [0, 0, 0, 0],
                 backgroundColor: [  CHART_COLORS.plastic,
                                     CHART_COLORS.metal,
                                     CHART_COLORS.organic,
@@ -302,21 +295,18 @@ function initPercentageChart(ctx) {
                         font: { family: 'Playfair Display', size: 14 } 
                     } 
                 },
-                // --- NEW: Add tooltip configuration ---
+
                 tooltip: {
                     callbacks: {
                         label: function(context) {
                             const label = context.label || '';
                             const percent = context.parsed;
                             
-                            // Access our custom rawCO2 data
                             const rawCO2 = context.dataset.rawCO2[context.dataIndex];
-                            
-                            // Format the strings
+
                             const percentString = `${percent}%`;
                             const co2String = `${rawCO2.toFixed(2)} kg CO2 Avoided`;
                             
-                            // Return an array of strings for multi-line tooltip
                             return [label, percentString, co2String];
                         }
                     }
@@ -336,8 +326,8 @@ function initWeightChart(ctx) {
         data: {
             labels: ['Plastic', 'Metal', 'Organic', 'Glass'],
             datasets: [{
-                // --- CHANGE 1 ---
-                label: 'Item Count', // Was 'Weight (kg)'
+
+                label: 'Item Count', 
                 data: [0, 0, 0, 0], 
                 backgroundColor: [
                     CHART_COLORS.plastic,
@@ -355,7 +345,7 @@ function initWeightChart(ctx) {
             scales: {
                 y: { 
                     beginAtZero: true,
-                    // --- CHANGE 2 (Recommended) ---
+                    
                     title: {
                         display: true,
                         text: 'Total Items Detected',
@@ -375,14 +365,13 @@ function initWeightChart(ctx) {
 /**
  * Updates all charts and stats cards with new data from the aggregated document.
  */
-// **** MODIFIED THIS FUNCTION ****
 function updateDashboard(data) {
     // 1. EXTRACT NEW DATA
     const counts = data.item_distribution_count || {}; 
     const percentComposition = data.percent_composition || {}; 
     const totalItems = data.total_items || 0;
     const totalCO2 = data.total_co2_avoided || 0;
-    const co2ByCat = data.aggCO2_by_category || {}; // <-- ADDED
+    const co2ByCat = data.aggCO2_by_category || {}; 
 
     // Helper to safely get count, defaulting to 0
     const getCount = (cls) => counts[cls] || 0;
@@ -407,14 +396,9 @@ function updateDashboard(data) {
 
     // 4. Update DOM Metrics (REMOVED old ones)
     // Assumes you have a new HTML element with id="totalItems"
-    document.getElementById('totalItems').innerText = totalItems; // Just the number
+    document.getElementById('totalItems').innerText = totalItems; 
     document.getElementById('totalCO2').innerText = totalCO2.toFixed(2) + ' kg';
 
-    /* --- REMOVED ---
-    document.getElementById('totalWeight').innerText = ...
-    document.getElementById('landfillDiversion').innerText = ...
-    document.getElementById('co2Saved').innerText = ...
-    */
 
     // 5. Update Charts
     if (percentageChart) {
@@ -455,7 +439,7 @@ function init3DScene() {
     // Renderer
     renderer = new THREE.WebGLRenderer({
         canvas: canvas,
-        alpha: true // Transparent background
+        alpha: true 
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
