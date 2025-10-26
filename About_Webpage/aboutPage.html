@@ -1,60 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us | WasteWise</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900;display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="../style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | WasteWise</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Set global configuration for Tailwind and use Inter font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f5; /* Light, clean background */
+        }
+        .container {
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+    </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
 
-    <header class="header" id="header">
-        <nav class="container header-nav">
-            <div class="header-logo">
-                WasteWise
-            </div>
-            <div class="header-links">
-                <a href="../index.html">Home</a>
-                <a href="../index.html">Dashboard</a>
-                <a href="about.html">About Us</a>
-            </div>
-        </nav>
-    </header>
+    <!-- Header / Navigation Bar -->
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container flex justify-between items-center h-16">
+            <!-- Logo -->
+            <div class="text-2xl font-extrabold text-green-700">
+                WasteWise
+            </div>
+            <!-- Links -->
+            <div class="space-x-6 text-gray-600 font-medium">
+                <a href="../index.html" class="hover:text-green-600 transition duration-150">Home</a>
+                <a href="../index.html" class="hover:text-green-600 transition duration-150">Dashboard</a>
+                <a href="about.html" class="text-green-600 border-b-2 border-green-600 pb-1">About Us</a>
+            </div>
+        </nav>
+    </header>
 
-    <main>
-        
-        <section class="content-section" id="about">
-            <div class="container content-container">
-                <h2 class="section-title">Environmental Benefits</h2>
-                <p>
-                    By accurately sorting waste, we can dramatically improve recycling rates and reduce landfill. Our dashboard calculates the estimated environmental impact based on the materials processed.
-                </p>
-                <ul>
-                    <li><strong>Landfill Diversion:</strong> We estimate the total weight of recyclable (plastic, metal) and compostable (organic) materials diverted from landfills.</li>
-                    <li><strong>CO2 Reduction:</strong> Recycling materials like plastic and metal uses significantly less energy than producing them from raw materials. We estimate the CO2 savings based on industry averages.</li>
-                </ul>
-                <p>
-                    Your hackathon model will feed data directly into this dashboard, providing a powerful, measurable story of your project's impact.
-                </p>
-                <p>
-                    Our mission is to leverage artificial intelligence to create tangible, positive environmental change. By providing clear, actionable data on waste streams, we empower businesses and communities to make smarter, more sustainable decisions.
-                </p>
-            </div>
-        </section>
+    <main class="flex-grow">
+        
+        <!-- Hero/Introduction Section -->
+        <section class="py-16 bg-green-50">
+            <div class="container text-center">
+                <h1 class="text-5xl font-extrabold text-gray-800 mb-3 md:text-6xl">Our Mission</h1>
+                <p class="text-xl text-green-700 max-w-3xl mx-auto">
+                    Leveraging AI to create tangible, positive environmental change by providing clear, actionable data on waste streams.
+                </p>
+            </div>
+        </section>
 
-    </main>
+        <!-- Environmental Benefits Section (Now without the main card) -->
+        <section class="py-16 md:py-24" id="about">
+            <div class="container">
+                
+                <!-- Content Container - Card styles removed, retaining centering/width -->
+                <div class="max-w-4xl mx-auto p-4 md:p-0"> 
+                    
+                    <h2 class="text-4xl font-bold text-gray-800 mb-8 text-center">Environmental Benefits</h2>
+                    
+                    <p class="text-lg text-gray-600 mb-6 leading-relaxed">
+                        By accurately sorting waste, we can dramatically improve recycling rates and reduce landfill volume. Our dashboard translates your efforts into measurable environmental impact based on the materials processed.
+                    </p>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 WasteWise Team - Hackathon Project</p>
-        </div>
-    </footer>
+                    <!-- Key Metric Highlights (Retained light box styling for emphasis) -->
+                    <div class="space-y-6 mb-8 p-6 bg-white rounded-xl shadow-lg border border-green-100">
+                        <h3 class="text-2xl font-semibold text-green-700">Key Impact Metrics:</h3>
+                        
+                        <!-- Landfill Diversion Point -->
+                        <div class="flex items-start space-x-4">
+                            <svg class="w-8 h-8 text-green-500 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                            <div class="flex-grow">
+                                <strong class="text-xl font-bold text-gray-800">Landfill Diversion:</strong>
+                                <p class="text-gray-700 mt-1">
+                                    We estimate the total weight of recyclable (plastic, metal) and compostable (organic) materials diverted from landfills, converting waste reduction into concrete numbers.
+                                </p>
+                            </div>
+                        </div>
 
-    <script src="aboutPage.js"></script>
+                        <!-- CO2 Reduction Point -->
+                        <div class="flex items-start space-x-4">
+                            <svg class="w-8 h-8 text-green-500 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-8V7a1 1 0 112 0v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3z"></path></svg>
+                            <div class="flex-grow">
+                                <strong class="text-xl font-bold text-gray-800">CO2 Reduction:</strong>
+                                <p class="text-gray-700 mt-1">
+                                    Recycling materials uses significantly less energy than producing them from raw resources. We calculate the estimated CO2 savings based on established industry benchmarks.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Conclusion Paragraphs -->
+                    <p class="text-lg text-gray-600 leading-relaxed mb-6">
+                        Your hackathon model will feed classification data directly into this dashboard, providing a powerful, measurable story of your project's positive impact on the environment.
+                    </p>
+                    <p class="text-lg font-semibold text-green-600 leading-relaxed">
+                        We empower businesses and communities to make smarter, more sustainable decisions, one perfectly sorted piece of trash at a time.
+                    </p>
+                </div>
+                
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer bg-gray-800 text-white mt-auto py-6">
+        <div class="container text-center text-sm">
+            <p>&copy; 2025 WasteWise Team - Sustainable Hackathon Project</p>
+        </div>
+    </footer>
+
 </body>
 </html>
