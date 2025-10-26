@@ -41,6 +41,15 @@ const PALETTE = {
     brown: 0x8b4513
 };
 
+// Colors for Chart.js (must be CSS strings)
+const CHART_COLORS = {
+    plastic: '#64ffda',   // accentCyan
+    metal:   '#00c2cb',   // accentTeal
+    organic: '#8b4513',   // brown  ← not black anymore
+    glass:   '#8892b0',   // textDark
+    border:  '#0a192f'    // darkBlue
+};
+
 
 // ================================================================
 // 1. ASSET LOAD & INITIALIZATION
@@ -148,17 +157,10 @@ function setupFirebaseListener() {
     const collectionRef = collection(db, LIVE_COLLECTION_PATH); 
 
     // --- !! QUERY FIX !! ---
-    // We've removed orderBy("timestamp", "desc") because the
-    // timestamp in your DB is a STRING, not a Timestamp object.
-    // This query will just grab the first document it finds.
-    //
-    // For a permanent fix, your backend MUST save a real Timestamp.
-    const statsQuery = query(
-        collectionRef,
-        limit(1)
-    );
+    // We removed limit(1). This query now gets ALL documents.
+    const statsQuery = query(collectionRef);
     
-    console.log(`Setting up listener for collection: ${LIVE_COLLECTION_PATH}`);
+    console.log(`Setting up AGGREGATION listener for collection: ${LIVE_COLLECTION_PATH}`);
     
     onSnapshot(statsQuery, (snapshot) => {
         if (snapshot.empty) {
@@ -166,17 +168,55 @@ function setupFirebaseListener() {
             return;
         }
 
+        // --- AGGREGATION LOGIC ---
+        // 1. Initialize aggregate counters
+        let aggTotalWeight = 0;
+        let aggCo2Saved = 0;
+        let aggMass = {
+            plastic: 0,
+            metal: 0,
+            organic: 0,
+            glass: 0
+        };
+
+        // 2. Loop through ALL documents and sum their values
         snapshot.forEach((doc) => {
-            const liveAggregatedData = doc.data(); 
+            const data = doc.data(); 
             
-            // Check if the data is valid
-            if (liveAggregatedData && liveAggregatedData.mass_distribution_kg) {
-                console.log("✅ LIVE AGGREGATED DATA RECEIVED:", liveAggregatedData);
-                updateDashboard(liveAggregatedData); 
-            } else {
-                console.warn("Received document, but it does not contain expected data fields.", liveAggregatedData);
+            // Safety check for each document
+            if (data && data.mass_distribution_kg) {
+                aggTotalWeight += data.total_mass_kg || 0;
+                aggCo2Saved += (data.environmental_impact && data.environmental_impact.total_co2_avoided_kg) || 0;
+                
+                // Add to each mass type
+                aggMass.plastic += data.mass_distribution_kg.plastic || 0;
+                aggMass.metal += data.mass_distribution_kg.metal || 0;
+                aggMass.organic += data.mass_distribution_kg.organic || 0;
+                aggMass.glass += data.mass_distribution_kg.glass || 0;
             }
         });
+
+        // 3. Calculate new percentages based on the new total mass
+        const totalForPercent = aggTotalWeight > 0 ? aggTotalWeight : 1; // Avoid divide-by-zero
+        let aggPercent = {
+            plastic: (aggMass.plastic / totalForPercent) * 100,
+            metal: (aggMass.metal / totalForPercent) * 100,
+            organic: (aggMass.organic / totalForPercent) * 100,
+            glass: (aggMass.glass / totalForPercent) * 100
+        };
+
+        // 4. Build the final aggregated object
+        const finalAggregatedData = {
+            total_mass_kg: aggTotalWeight,
+            mass_distribution_kg: aggMass,
+            percent_composition: aggPercent,
+            environmental_impact: {
+                total_co2_avoided_kg: aggCo2Saved
+            }
+        };
+
+        console.log("✅ AGGREGATED DATA CALCULATED:", finalAggregatedData);
+        updateDashboard(finalAggregatedData); // Pass the one, final object
 
     }, (error) => {
         console.error("Error listening to Firestore: ", error);
@@ -200,14 +240,17 @@ function initPercentageChart(ctx) {
             datasets: [{
                 label: 'Waste Composition',
                 data: [0, 0, 0, 0], 
-                backgroundColor: [PALETTE.accentCyan, PALETTE.accentTeal, PALETTE.brown, PALETTE.textDark],
-                borderColor: PALETTE.darkBlue,
+                backgroundColor: [  CHART_COLORS.plastic,
+                                    CHART_COLORS.metal,
+                                    CHART_COLORS.organic,
+                                    CHART_COLORS.glass  ],
+                borderColor: CHART_COLORS.border,
                 borderWidth: 3
             }]
         },
         options: {
             responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { color: '#ccd6f6', font: { family: 'Space Grotesk', size: 14 } } } }
+            plugins: { legend: { position: 'bottom', labels: { color: '#ccd6f6', font: { family: 'Playfair Display', size: 14 } } } }
         }
     });
 }
@@ -224,15 +267,22 @@ function initWeightChart(ctx) {
             datasets: [{
                 label: 'Weight (kg)',
                 data: [0, 0, 0, 0], 
-                backgroundColor: [PALETTE.accentCyan, PALETTE.accentTeal, PALETTE.brown, PALETTE.textDark],
+                backgroundColor: [
+                    CHART_COLORS.plastic,
+                    CHART_COLORS.metal,
+                    CHART_COLORS.organic,
+                    CHART_COLORS.glass
+                ],
+                borderColor: CHART_COLORS.border,
+                borderWidth: 1,
                 borderRadius: 4
             }]
         },
         options: {
             responsive: true, maintainAspectRatio: false,
             scales: {
-                y: { beginAtZero: true, ticks: { color: '#ccd6f6', font: { family: 'Space Grotesk' } }, grid: { color: 'rgba(204, 214, 246, 0.1)' } },
-                x: { ticks: { color: '#ccd6f6', font: { family: 'Space Grotesk', size: 14 } }, grid: { display: false } }
+                y: { beginAtZero: true, ticks: { color: '#ccd6f6', font: { family: 'Playfair Display' } }, grid: { color: 'rgba(204, 214, 246, 0.1)' } },
+                x: { ticks: { color: '#ccd6f6', font: { family: 'Playfair Display', size: 14 } }, grid: { display: false } }
             },
             plugins: { legend: { display: false } }
         }
