@@ -200,61 +200,114 @@ main {
     text-align: center;
 }
 
-/* --- NEW: Team Section Styles --- */
-
-.team-grid {
-    display: grid;
-    /* This creates a single column, so items stack in rows */
-    grid-template-columns: 1fr; 
-    gap: 2rem;
-    width: 100%;
-
-    /* RECOMMENDED: Add these two lines */
-    max-width: 700px; /* Stops the cards from being too wide */
-    margin: 0 auto;   /* Centers the single-column layout */
+/* --- Base Styles for the Team Section --- */
+.content-section {
+    padding: 60px 20px;
+    background-color: #1a1a2e; /* Dark background for good contrast */
+    color: #ffffff;
 }
 
-.team-member-card {
-    background-color: var(--color-light-blue); /* Lighter card background */
-    border: 1px solid rgba(100, 255, 218, 0.1);
-    border-radius: 8px;
-    padding: 2rem;
+.section-title {
     text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 40px;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #64ffda; /* Accent color for titles */
 }
 
-.team-member-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+/* --- Team Grid (Optional: If you want all members stacked vertically, remove this) --- */
+/* If you want members side-by-side (like 2x2 grid), you'd modify .team-grid here */
+.team-grid {
+    display: flex;
+    flex-direction: column; /* Stack cards vertically for the alternating effect */
+    gap: 50px; /* Space between each mentor card */
 }
 
+/* --- Team Member Card: The container for the image and text --- */
+.team-member-card {
+    /* Set up Flexbox for the side-by-side layout (Image + Text) */
+    display: flex;
+    align-items: center; /* Vertically center image and text */
+    gap: 30px; /* Space between the image and info */
+    max-width: 900px;
+    margin: 0 auto; /* Center the card horizontally */
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #2a2a4a; /* Slight contrast for card background */
+}
+
+/* --- 1. Update the Image Container (team-member-img) --- */
 .team-member-img {
     width: 150px;
+    min-width: 150px;
     height: 150px;
-    border-radius: 50%; /* Circular image placeholder */
-    background-color: var(--color-text-dark); /* Placeholder color */
-    margin: 0 auto 1.5rem auto;
-    /* To add an image: 
-       1. Replace this div with an <img> tag in the HTML
-       2. Or, set 'background-image: url(...)' here
-    */
-    border: 3px solid var(--color-accent-cyan);
+    border-radius: 50%; /* This makes the container circular */
+    background-color: #45456b; /* Placeholder color */
+    border: 3px solid #64ffda;
+    overflow: hidden; /* **CRUCIAL: Hides any part of the image that extends beyond the circle** */
+    /* Add flex or grid properties if you put the image inside as a background, 
+       but since you're using an <img> tag, this setup is fine. */
+}
+
+.team-member-img img {
+    display: block; /* Removes any default space below the image */
+    width: 100%;    /* Makes the image fill 100% of the container's width */
+    height: 100%;   /* Makes the image fill 100% of the container's height */
+    
+    /* **CRUCIAL: Ensures the image is correctly cropped to cover the area** */
+    object-fit: cover; 
+}
+
+/* --- Text Information Styling --- */
+.team-member-info {
+    flex-grow: 1; /* Allows the text block to fill the remaining space */
 }
 
 .team-member-name {
-    color: var(--color-accent-cyan);
     font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: #ffffff;
 }
 
 .team-member-role {
-    color: var(--color-text-light);
     font-size: 1rem;
-    font-style: italic;
-    margin-bottom: 1rem;
+    color: #64ffda;
+    margin-bottom: 10px;
 }
 
+/* ---------------------------------------------------- */
+/* --- KEY FOR ALTERNATING LAYOUT (Image Right/Left) --- */
+/* ---------------------------------------------------- */
+
+/* Use the :nth-child(even) selector to target every second, fourth, sixth, etc., card */
+.team-member-card:nth-child(even) {
+    /* This reverses the order of the flex items: [Image] [Text] becomes [Text] [Image] */
+    flex-direction: row-reverse;
+}
+
+/* --------------------------------- */
+/* --- Responsive Adjustments --- */
+/* --------------------------------- */
+
+/* On smaller screens, stack the image and text vertically for readability */
+@media (max-width: 768px) {
+    .team-member-card,
+    .team-member-card:nth-child(even) {
+        /* Reset flex-direction to column for all cards */
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .team-member-img {
+        margin-bottom: 15px; /* Add space below the image */
+    }
+
+    .team-member-info p {
+        /* Center-align the paragraphs for a clean look */
+        text-align: left; /* Keep long text left-aligned for readability */
+    }
+}
 /* The bio <p> will automatically use the default text color */
 
 
