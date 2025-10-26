@@ -128,10 +128,10 @@ main {
 .side-nav-link {
     display: flex; /* Use Flexbox for alignment */
     align-items: center;
-    justify-content: center; /* CENTER content horizontally by default */
+    justify-content: flex-start; /* Align dot to the left */
     width: 48px; /* Default width */
     height: 48px;
-    padding: 12px;
+    padding: 12px 18px; /* 18px left/right padding centers the 12px dot */
     border-radius: 50%;
     background-color: rgba(40, 58, 83, 0.5);
     backdrop-filter: blur(5px);
@@ -146,7 +146,6 @@ main {
     font-weight: 600;
     color: var(--color-text-light);
     white-space: nowrap;
-    margin-left: 10px;
 }
 
 /* This is the EXPANDED state (Hover or Active) */
@@ -155,20 +154,24 @@ main {
     width: 160px; /* Expanded width */
     border-radius: 30px;
     background-color: var(--color-light-blue);
-    justify-content: flex-start; /* Switch back to LEFT-ALIGNED when expanded */
-    padding-left: 12px; /* Pad left to align dot */
-    padding-right: 20px;
+    justify-content: center; /* This will now center the <span> */
+    padding: 12px 20px; /* Symmetrical padding */
+    position: relative; /* Add this to anchor the dot */
+}
+
+/* NEW: Position the dot absolutely ONLY when expanded */
+.side-nav-link:hover::before,
+.side-nav-link.active::before {
+    position: absolute;
+    left: 18px; /* Positions dot 18px from the left edge */
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 /* FIX: Ensure the default state properties (width, padding) are always 
    applied when NOT hovered and NOT active. This explicit definition 
    will ensure retraction works. 
 */
-.side-nav-link:not(:hover):not(.active) {
-    width: 48px; /* Explicitly reset width */
-    padding: 12px; /* Explicitly reset padding */
-    justify-content: center; /* Explicitly reset centering */
-}
 
 
 .side-nav-link:hover span,
