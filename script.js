@@ -147,10 +147,14 @@ async function initializeFirebase() {
 function setupFirebaseListener() {
     const collectionRef = collection(db, LIVE_COLLECTION_PATH); 
 
-    // Query: Order by timestamp (descending) and grab only the newest document (limit 1).
+    // --- !! QUERY FIX !! ---
+    // We've removed orderBy("timestamp", "desc") because the
+    // timestamp in your DB is a STRING, not a Timestamp object.
+    // This query will just grab the first document it finds.
+    //
+    // For a permanent fix, your backend MUST save a real Timestamp.
     const statsQuery = query(
         collectionRef,
-        orderBy("timestamp", "desc"), 
         limit(1)
     );
     
@@ -164,8 +168,14 @@ function setupFirebaseListener() {
 
         snapshot.forEach((doc) => {
             const liveAggregatedData = doc.data(); 
-            console.log("✅ LIVE AGGREGATED DATA RECEIVED:", liveAggregatedData);
-            updateDashboard(liveAggregatedData); 
+            
+            // Check if the data is valid
+            if (liveAggregatedData && liveAggregatedData.mass_distribution_kg) {
+                console.log("✅ LIVE AGGREGATED DATA RECEIVED:", liveAggregatedData);
+                updateDashboard(liveAggregatedData); 
+            } else {
+                console.warn("Received document, but it does not contain expected data fields.", liveAggregatedData);
+            }
         });
 
     }, (error) => {
@@ -234,10 +244,10 @@ function initWeightChart(ctx) {
  */
 function updateDashboard(data) {
     // 1. EXTRACT DATA from the aggregated document
-    const massDistribution = data.mass_distribution_kg; 
-    const percentComposition = data.percent_composition; 
-    const totalWeight = data.total_mass_kg;
-    const co2Saved = data.environmental_impact.total_co2_avoided_kg;
+    const massDistribution = data.mass_distribution_kg || {}; 
+    const percentComposition = data.percent_composition || {}; 
+    const totalWeight = data.total_mass_kg || 0;
+    const co2Saved = (data.environmental_impact && data.environmental_impact.total_co2_avoided_kg) || 0;
 
     // Helper to safely get weight, defaulting to 0
     const getWeight = (cls) => massDistribution[cls] || 0;
