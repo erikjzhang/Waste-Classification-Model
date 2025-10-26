@@ -241,21 +241,12 @@ main {
     width: 150px;
     min-width: 150px;
     height: 150px;
-    border-radius: 50%; /* This makes the container circular */
-    background-color: #45456b; /* Placeholder color */
+    border-radius: 50%;
     border: 3px solid #64ffda;
-    overflow: hidden; /* **CRUCIAL: Hides any part of the image that extends beyond the circle** */
-    /* Add flex or grid properties if you put the image inside as a background, 
-       but since you're using an <img> tag, this setup is fine. */
-}
-
-.team-member-img img {
-    display: block; /* Removes any default space below the image */
-    width: 100%;    /* Makes the image fill 100% of the container's width */
-    height: 100%;   /* Makes the image fill 100% of the container's height */
-    
-    /* **CRUCIAL: Ensures the image is correctly cropped to cover the area** */
-    object-fit: cover; 
+    overflow: hidden; 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 /* --- Text Information Styling --- */
