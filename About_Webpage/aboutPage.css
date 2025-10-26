@@ -200,6 +200,63 @@ main {
     text-align: center;
 }
 
+/* --- NEW: Team Section Styles --- */
+
+.team-grid {
+    display: grid;
+    /* This creates a single column, so items stack in rows */
+    grid-template-columns: 1fr; 
+    gap: 2rem;
+    width: 100%;
+
+    /* RECOMMENDED: Add these two lines */
+    max-width: 700px; /* Stops the cards from being too wide */
+    margin: 0 auto;   /* Centers the single-column layout */
+}
+
+.team-member-card {
+    background-color: var(--color-light-blue); /* Lighter card background */
+    border: 1px solid rgba(100, 255, 218, 0.1);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-member-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.team-member-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%; /* Circular image placeholder */
+    background-color: var(--color-text-dark); /* Placeholder color */
+    margin: 0 auto 1.5rem auto;
+    /* To add an image: 
+       1. Replace this div with an <img> tag in the HTML
+       2. Or, set 'background-image: url(...)' here
+    */
+    border: 3px solid var(--color-accent-cyan);
+}
+
+.team-member-name {
+    color: var(--color-accent-cyan);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.team-member-role {
+    color: var(--color-text-light);
+    font-size: 1rem;
+    font-style: italic;
+    margin-bottom: 1rem;
+}
+
+/* The bio <p> will automatically use the default text color */
+
 
 /* --- Footer (MATCHING HOME) --- */
 .footer {
