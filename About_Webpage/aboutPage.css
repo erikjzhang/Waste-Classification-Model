@@ -215,38 +215,63 @@ main {
     color: #64ffda; /* Accent color for titles */
 }
 
-/* --- Team Grid (Optional: If you want all members stacked vertically, remove this) --- */
-/* If you want members side-by-side (like 2x2 grid), you'd modify .team-grid here */
-.team-grid {
-    display: flex;
-    flex-direction: column; /* Stack cards vertically for the alternating effect */
-    gap: 50px; /* Space between each mentor card */
+/* --- Base Styles for the Team Section --- */
+.content-section {
+    padding: 60px 20px;
+    background-color: #1a1a2e; /* Example Dark Background */
+    color: #ffffff;
 }
 
-/* --- Team Member Card: The container for the image and text --- */
+.section-title {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #64ffda; /* Example Accent Color */
+}
+
+/* --- Team Grid: Vertical Stacking for Alternating Layout --- */
+.team-grid {
+    display: flex;
+    flex-direction: column; /* This ensures each member card stacks below the last */
+    gap: 40px; /* Space between each member card */
+}
+
+/* --- Team Member Card: Side-by-Side Flex Layout --- */
 .team-member-card {
     /* Set up Flexbox for the side-by-side layout (Image + Text) */
     display: flex;
     align-items: center; /* Vertically center image and text */
-    gap: 30px; /* Space between the image and info */
+    gap: 40px; /* Space between the image and info */
     max-width: 900px;
-    margin: 0 auto; /* Center the card horizontally */
-    padding: 20px;
+    margin: 0 auto; /* Center the entire card horizontally */
+    padding: 30px;
     border-radius: 10px;
-    background-color: #2a2a4a; /* Slight contrast for card background */
+    background-color: #2a2a4a; /* Card background */
 }
 
-/* --- 1. Update the Image Container (team-member-img) --- */
+/* --- ALTERNATING LAYOUT FIX: Reverses the order of the Image/Text --- */
+.team-member-card.reverse-order {
+    flex-direction: row-reverse;
+}
+
+/* --- Image Container Styling (The Circle) --- */
 .team-member-img {
     width: 150px;
     min-width: 150px;
     height: 150px;
     border-radius: 50%;
     border: 3px solid #64ffda;
-    overflow: hidden; 
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    overflow: hidden; /* CRUCIAL: Clips the image to the circle */
+    flex-shrink: 0; /* Prevents the image from shrinking */
+}
+
+/* --- Image Styling (Inside the Circle) --- */
+.team-member-img img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures image fills the container without distortion */
 }
 
 /* --- Text Information Styling --- */
@@ -254,53 +279,26 @@ main {
     flex-grow: 1; /* Allows the text block to fill the remaining space */
 }
 
-.team-member-name {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 0.3rem;
-    color: #ffffff;
+.team-member-card.reverse-order .team-member-info {
+    /* Optional: Right-align text in reversed cards for visual balance */
+    text-align: right; 
 }
 
-.team-member-role {
-    font-size: 1rem;
-    color: #64ffda;
-    margin-bottom: 10px;
-}
 
-/* ---------------------------------------------------- */
-/* --- KEY FOR ALTERNATING LAYOUT (Image Right/Left) --- */
-/* ---------------------------------------------------- */
-
-/* Use the :nth-child(even) selector to target every second, fourth, sixth, etc., card */
-.team-member-card:nth-child(even) {
-    /* This reverses the order of the flex items: [Image] [Text] becomes [Text] [Image] */
-    flex-direction: row-reverse;
-}
-
-/* --------------------------------- */
-/* --- Responsive Adjustments --- */
-/* --------------------------------- */
-
-/* On smaller screens, stack the image and text vertically for readability */
+/* --- Responsive Adjustment --- */
 @media (max-width: 768px) {
     .team-member-card,
-    .team-member-card:nth-child(even) {
-        /* Reset flex-direction to column for all cards */
+    .team-member-card.reverse-order {
+        /* Stack image and text vertically on small screens */
         flex-direction: column;
         text-align: center;
+        /* Center the image within the stacked column */
+        align-items: center; 
     }
-
-    .team-member-img {
-        margin-bottom: 15px; /* Add space below the image */
-    }
-
-    .team-member-info p {
-        /* Center-align the paragraphs for a clean look */
-        text-align: left; /* Keep long text left-aligned for readability */
+    .team-member-card.reverse-order .team-member-info {
+        text-align: center; /* Reset text alignment for mobile */
     }
 }
-/* The bio <p> will automatically use the default text color */
-
 
 /* --- Footer (MATCHING HOME) --- */
 .footer {
