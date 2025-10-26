@@ -316,8 +316,11 @@ main {
     gap: 1.5rem;
 }
 
+/* === UPDATED STATS GRID === */
 .stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    /* This will center a single card with a flexible width */
+    grid-template-columns: minmax(300px, 400px);
+    justify-content: center;
     margin-bottom: 3rem;
 }
 
@@ -340,6 +343,7 @@ main {
     font-weight: 600;
     color: var(--color-text-light);
     margin-bottom: 0.5rem;
+    text-align: center; /* Center the title for the single card */
 }
 
 .card-title-center {
@@ -354,14 +358,16 @@ main {
     font-size: 2.75rem;
     font-weight: 700;
     color: var(--color-white);
+    text-align: center; /* Center the stat for the single card */
 }
 
-#landfillDiversion {
+/* === UPDATED STAT STYLES === */
+/* Make the main stat number pop */
+#totalItems {
     color: var(--color-accent-cyan) !important;
 }
-#co2Saved {
-    color: var(--color-accent-teal) !important;
-}
+
+/* (REMOVED #landfillDiversion and #co2Saved styles) */
 
 /* --- Chart Container --- */
 .chart-container {

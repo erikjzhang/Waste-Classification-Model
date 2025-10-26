@@ -155,67 +155,80 @@ async function initializeFirebase() {
  */
 function setupFirebaseListener() {
     const collectionRef = collection(db, LIVE_COLLECTION_PATH); 
-
-    // --- !! QUERY FIX !! ---
-    // We removed limit(1). This query now gets ALL documents.
-    const statsQuery = query(collectionRef);
+    const statsQuery = query(collectionRef); // Still gets all documents
     
-    console.log(`Setting up AGGREGATION listener for collection: ${LIVE_COLLECTION_PATH}`);
+    console.log(`Setting up COUNT AGGREGATION listener for collection: ${LIVE_COLLECTION_PATH}`);
     
     onSnapshot(statsQuery, (snapshot) => {
         if (snapshot.empty) {
             console.log("No data found. Waiting for first push from analyzer.");
+            // <<< ADDED: Update to 0 if collection is empty
+            updateDashboard({ 
+                total_items: 0, 
+                item_distribution_count: {}, 
+                percent_composition: {} 
+            });
             return;
         }
 
-        // --- AGGREGATION LOGIC ---
-        // 1. Initialize aggregate counters
-        let aggTotalWeight = 0;
-        let aggCo2Saved = 0;
-        let aggMass = {
-            plastic: 0,
-            metal: 0,
-            organic: 0,
-            glass: 0
-        };
+        // --- NEW AGGREGATION LOGIC (FOR COUNTS) ---
+        
+        let aggTotalItems = 0;
+        let aggCounts = { plastic: 0, metal: 0, organic: 0, glass: 0 };
+        let docCount = 0; // <<< ADDED: Counter for debugging
+        let skippedDocs = 0; // <<< ADDED: Counter for debugging
 
-        // 2. Loop through ALL documents and sum their values
+        console.log(`Snapshot received, processing ${snapshot.size} documents...`); // <<< ADDED: Helpful log
+
         snapshot.forEach((doc) => {
+            docCount++;
             const data = doc.data(); 
+
+            // --- ADDED: CRITICAL DEBUGGING LOG ---
+            // This will show you EXACTLY what data structure is in Firestore
+            if (docCount === 1) { // Only log the first doc to avoid spamming
+                console.log("FIRST DOCUMENT DATA:", JSON.stringify(data, null, 2));
+            }
             
-            // Safety check for each document
-            if (data && data.mass_distribution_kg) {
-                aggTotalWeight += data.total_mass_kg || 0;
-                aggCo2Saved += (data.environmental_impact && data.environmental_impact.total_co2_avoided_kg) || 0;
+            // Safety check for the NEW data structure
+            if (data && data.item_distribution_count) { // <<< THIS IS THE SUSPECT
+                aggTotalItems += data.total_items || 0;
                 
                 // Add to each mass type
-                aggMass.plastic += data.mass_distribution_kg.plastic || 0;
-                aggMass.metal += data.mass_distribution_kg.metal || 0;
-                aggMass.organic += data.mass_distribution_kg.organic || 0;
-                aggMass.glass += data.mass_distribution_kg.glass || 0;
+                aggCounts.plastic += data.item_distribution_count.plastic || 0;
+                aggCounts.metal   += data.item_distribution_count.metal   || 0;
+                aggCounts.organic += data.item_distribution_count.organic || 0;
+                aggCounts.glass   += data.item_distribution_count.glass   || 0;
+            } else {
+                // --- ADDED: Log if a document is skipped ---
+                skippedDocs++;
             }
         });
 
-        // 3. Calculate new percentages based on the new total mass
-        const totalForPercent = aggTotalWeight > 0 ? aggTotalWeight : 1; // Avoid divide-by-zero
+        // --- ADDED: Log the result of the loop ---
+        if (docCount > 0 && skippedDocs === docCount) {
+            console.warn(`WARNING: Processed ${docCount} documents, but SKIPPED ALL OF THEM.`);
+            console.warn(`Check your 'FIRST DOCUMENT DATA' log. The code is looking for a field named 'item_distribution_count', but it's not finding it.`);
+        }
+
+        // 3. Calculate new percentages based on the new total count
+        const totalForPercent = aggTotalItems > 0 ? aggTotalItems : 1; // Avoid divide-by-zero
         let aggPercent = {
-            plastic: (aggMass.plastic / totalForPercent) * 100,
-            metal: (aggMass.metal / totalForPercent) * 100,
-            organic: (aggMass.organic / totalForPercent) * 100,
-            glass: (aggMass.glass / totalForPercent) * 100
+            plastic: (aggCounts.plastic / totalForPercent) * 100,
+            metal:   (aggCounts.metal   / totalForPercent) * 100,
+            organic: (aggCounts.organic / totalForPercent) * 100,
+            glass:   (aggCounts.glass   / totalForPercent) * 100
         };
 
         // 4. Build the final aggregated object
         const finalAggregatedData = {
-            total_mass_kg: aggTotalWeight,
-            mass_distribution_kg: aggMass,
-            percent_composition: aggPercent,
-            environmental_impact: {
-                total_co2_avoided_kg: aggCo2Saved
-            }
+            total_items: aggTotalItems,
+            item_distribution_count: aggCounts,
+            percent_composition: aggPercent
+            // environmental_impact is no longer needed
         };
 
-        console.log("✅ AGGREGATED DATA CALCULATED:", finalAggregatedData);
+        console.log("✅ AGGREGATED COUNT DATA:", finalAggregatedData);
         updateDashboard(finalAggregatedData); // Pass the one, final object
 
     }, (error) => {
@@ -265,7 +278,8 @@ function initWeightChart(ctx) {
         data: {
             labels: ['Plastic', 'Metal', 'Organic', 'Glass'],
             datasets: [{
-                label: 'Weight (kg)',
+                // --- CHANGE 1 ---
+                label: 'Item Count', // Was 'Weight (kg)'
                 data: [0, 0, 0, 0], 
                 backgroundColor: [
                     CHART_COLORS.plastic,
@@ -281,7 +295,18 @@ function initWeightChart(ctx) {
         options: {
             responsive: true, maintainAspectRatio: false,
             scales: {
-                y: { beginAtZero: true, ticks: { color: '#ccd6f6', font: { family: 'Playfair Display' } }, grid: { color: 'rgba(204, 214, 246, 0.1)' } },
+                y: { 
+                    beginAtZero: true,
+                    // --- CHANGE 2 (Recommended) ---
+                    title: {
+                        display: true,
+                        text: 'Total Items Detected',
+                        color: '#ccd6f6',
+                        font: { family: 'Playfair Display' }
+                    },
+                    ticks: { color: '#ccd6f6', font: { family: 'Playfair Display' } }, 
+                    grid: { color: 'rgba(204, 214, 246, 0.1)' } 
+                },
                 x: { ticks: { color: '#ccd6f6', font: { family: 'Playfair Display', size: 14 } }, grid: { display: false } }
             },
             plugins: { legend: { display: false } }
@@ -293,39 +318,45 @@ function initWeightChart(ctx) {
  * Updates all charts and stats cards with new data from the aggregated document.
  */
 function updateDashboard(data) {
-    // 1. EXTRACT DATA from the aggregated document
-    const massDistribution = data.mass_distribution_kg || {}; 
+    // 1. EXTRACT NEW DATA
+    const counts = data.item_distribution_count || {}; 
     const percentComposition = data.percent_composition || {}; 
-    const totalWeight = data.total_mass_kg || 0;
-    const co2Saved = (data.environmental_impact && data.environmental_impact.total_co2_avoided_kg) || 0;
+    const totalItems = data.total_items || 0;
 
-    // Helper to safely get weight, defaulting to 0
-    const getWeight = (cls) => massDistribution[cls] || 0;
+    // Helper to safely get count, defaulting to 0
+    const getCount = (cls) => counts[cls] || 0;
     
-    // 2. Get individual weights for charts
-    const plasticWeight = getWeight('plastic');
-    const metalWeight = getWeight('metal');
-    const organicWeight = getWeight('organic'); 
-    const glassWeight = getWeight('glass');
+    // 2. Get individual counts for charts
+    const plasticCount = getCount('plastic');
+    const metalCount = getCount('metal');
+    const organicCount = getCount('organic'); 
+    const glassCount = getCount('glass');
     
-    // 3. Calculate percentages from the data structure
+    // 3. Get percentages
     const plasticPercent = percentComposition['plastic'] || 0;
     const metalPercent = percentComposition['metal'] || 0;
     const organicPercent = percentComposition['organic'] || 0;
     const glassPercent = percentComposition['glass'] || 0;
 
-    // 4. Update DOM Metrics
-    document.getElementById('totalWeight').innerText = totalWeight.toFixed(2) + ' kg';
-    document.getElementById('landfillDiversion').innerText = totalWeight.toFixed(2) + ' kg'; // Using total weight as a proxy
-    document.getElementById('co2Saved').innerText = co2Saved.toFixed(2) + ' kg';
+    // 4. Update DOM Metrics (REMOVED old ones)
+    // Assumes you have a new HTML element with id="totalItems"
+    document.getElementById('totalItems').innerText = totalItems; // Just the number
+
+    /* --- REMOVED ---
+    document.getElementById('totalWeight').innerText = ...
+    document.getElementById('landfillDiversion').innerText = ...
+    document.getElementById('co2Saved').innerText = ...
+    */
 
     // 5. Update Charts
     if (percentageChart) {
+        // This chart still works, as percentages are still valid
         percentageChart.data.datasets[0].data = [plasticPercent, metalPercent, organicPercent, glassPercent];
         percentageChart.update();
     }
     if (weightChart) {
-        weightChart.data.datasets[0].data = [plasticWeight, metalWeight, organicWeight, glassWeight];
+        // This now updates with COUNTS instead of WEIGHTS
+        weightChart.data.datasets[0].data = [plasticCount, metalCount, organicCount, glassCount];
         weightChart.update();
     }
 }
