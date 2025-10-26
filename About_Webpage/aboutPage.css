@@ -23,6 +23,41 @@ body {
     line-height: 1.6;
 }
 
+/* Styling for the new hero section on the About Page */
+.hero-about {
+    /* Inherit main hero properties for height, background, etc. */
+    min-height: 50vh; /* Shorter than the main hero */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 100px 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure the hero-title and hero-subtitle styles are used */
+.hero-about .hero-content {
+    /* Center the content */
+    max-width: 800px;
+    padding: 20px;
+}
+
+/* To bring the content sections closer, reduce the top/bottom padding of content-section: */
+/* The HTML uses inline styles for a quick fix, but this is better: */
+/* .content-section {
+    padding-top: 50px; 
+    padding-bottom: 50px;
+} */
+/* OR define a specific class for tighter spacing: */
+/* .content-section-tight {
+    padding-top: 50px; 
+    padding-bottom: 50px;
+} */
+
+    /* I JUST ADDED THIS STARTING AT LINE 26 MAY NEED TO REMOVE */
+
+
 /* --- Utility Classes --- */
 .container {
     max-width: 1200px;
