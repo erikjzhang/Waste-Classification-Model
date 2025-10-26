@@ -27,9 +27,7 @@
         .text-accent {
             color: #00FFC2; /* Electric Cyan/Green */
         }
-        .bg-card-dark {
-            background-color: #1f1f1f;
-        }
+        /* Removed .bg-card-dark, .rounded-xl, and shadow/border styles for the main content area */
         .border-accent {
             border-color: #00FFC2;
         }
@@ -52,6 +50,7 @@
 
     <main class="flex-grow">
         
+        <!-- Mission Header Section -->
         <section class="py-20 bg-gray-900 border-b border-accent/20">
             <div class="container text-center">
                 <h1 class="text-6xl font-extrabold text-white mb-4 md:text-7xl tracking-tighter">Our Mission</h1>
@@ -61,10 +60,12 @@
             </div>
         </section>
 
+        <!-- Main Content Section - Now without the "bubble" card styling -->
         <section class="py-16 md:py-24" id="about">
             <div class="container">
                 
-                <div class="max-w-4xl mx-auto p-8 bg-card-dark rounded-xl shadow-2xl border border-accent/30 transition-all duration-300 hover:shadow-accent/30">
+                <!-- Main Content Wrapper: Removed p-8, bg-card-dark, rounded-xl, shadow, and border classes -->
+                <div class="max-w-4xl mx-auto">
                     
                     <h2 class="text-4xl font-bold text-white mb-10 text-center tracking-wide border-b pb-3 border-gray-700">Environmental Benefits</h2>
                     
@@ -72,10 +73,12 @@
                         By accurately sorting waste, we can dramatically improve recycling rates and reduce landfill volume. Our dashboard translates your efforts into measurable environmental impact based on the materials processed.
                     </p>
 
-                    <div class="space-y-8 mb-10 p-8 bg-gray-900 rounded-xl shadow-inner border border-accent/40">
-                        <h3 class="text-3xl font-semibold text-accent border-b border-gray-700 pb-3">Key Impact Metrics:</h3>
+                    <!-- Key Impact Metrics Block: Simplified styling to remove the inner box look -->
+                    <div class="space-y-8 mb-10 pt-8 pb-8 border-y border-gray-700/50">
+                        <h3 class="text-3xl font-semibold text-accent border-b border-gray-700/50 pb-3">Key Impact Metrics:</h3>
                         
                         <div class="flex items-start space-x-6">
+                            <!-- Icon 1 -->
                             <svg class="w-10 h-10 text-accent mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                             <div class="flex-grow">
                                 <strong class="text-2xl font-bold text-white tracking-tight">Landfill Diversion:</strong>
@@ -86,6 +89,7 @@
                         </div>
 
                         <div class="flex items-start space-x-6">
+                            <!-- Icon 2 -->
                             <svg class="w-10 h-10 text-accent mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-8V7a1 1 0 112 0v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3z"></path></svg>
                             <div class="flex-grow">
                                 <strong class="text-2xl font-bold text-white tracking-tight">CO2 Reduction:</strong>
