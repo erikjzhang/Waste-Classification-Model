@@ -7,21 +7,21 @@
   ================================================================
 */
 
-// --- Firebase SDK Imports ---
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+// --- Firebase SDK Imports (Ensure you use the current version) ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-analytics.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, query, limit, orderBy } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-// --- Firebase Configuration (IMPORTED) ---
-// The config is now safely imported from a separate, un-tracked file
-import { firebaseConfig } from './firebase-config.js';
+// --- Configuration (Assumed to be in a separate, un-tracked file) ---
+import { firebaseConfig } from './firebase-config.js'; // Requires this file to exist
 
-
-// --- Firebase App Variables ---
+// --- Global App Variables ---
 let app, auth, db, analytics;
 let userId = null;
-let dbCollection = null; 
+
+// --- Collection Name (MUST match the Python script) ---
+const LIVE_COLLECTION_PATH = "live_conveyor_belt_stats";
 
 // --- Dashboard & UI Variables ---
 let percentageChart, weightChart;
@@ -303,26 +303,21 @@ function initScrollAnimations() {
 
 
 // ================================================================
-// FIREBASE & AUTHENTICATION
+// CORE FIREBASE SETUP AND AUTHENTICATION (Your Provided Logic)
 // ================================================================
 
 /**
  * Initializes Firebase, handles authentication, and sets up auth listener.
  */
 async function initializeFirebase() {
-    // This will no longer fail, as firebaseConfig is imported
     if (firebaseConfig && firebaseConfig.apiKey) {
         app = initializeApp(firebaseConfig);
-        analytics = getAnalytics(app);
         db = getFirestore(app);
-        auth = getAuth(app);
-
-        // setLogLevel('debug'); // Uncomment for Firebase debugging
+        auth = getAuth(app); 
+        // analytics = getAnalytics(app); // Uncomment if needed
 
         try {
-            // Sign in anonymously for local testing
             await signInAnonymously(auth);
-
         } catch (error) {
             console.error("Firebase Auth Error:", error);
         }
@@ -330,69 +325,57 @@ async function initializeFirebase() {
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 userId = user.uid;
-                console.log("User authenticated (anonymously):", userId);
+                console.log("User authenticated (anonymously). Starting listener...");
                 
-                // UPDATED: Use a simple root collection path
-                const collectionPath = "classifications";
-                dbCollection = collection(db, collectionPath);
-                console.log("Listening to collection:", collectionPath);
+                // Start the core data listener only after authentication
+                setupFirebaseListener();
                 
-                // NOW set up the listener
-                if (percentageChart && weightChart) {
-                    setupFirebaseListener();
-                }
             } else {
                 userId = null;
-                console.log("User is signed out.");
+                console.warn("User is signed out. Dashboard may not update.");
             }
         });
 
     } else {
-        // This error should not appear anymore
-        console.error("Firebase config is missing or incomplete.");
-        document.body.innerHTML = `<div style="color: red; text-align: center; margin-top: 50px; font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem;">Error: Firebase configuration is missing. The dashboard cannot load.</div>`;
+        console.error("Error: Firebase config is missing or incomplete.");
     }
 }
 
+// ================================================================
+// LIVE DATA LISTENER (ADAPTED FOR AGGREGATED PYTHON DATA)
+// ================================================================
+
 /**
- * Sets up the onSnapshot listener to get live data from Firestore
- * and update the dashboard. (UPDATED FOR 4 CATEGORIES)
+ * Sets up the onSnapshot listener to get the SINGLE LATEST aggregated document
+ * pushed from the Colab/Python backend.
  */
 function setupFirebaseListener() {
-    if (!dbCollection) {
-        console.warn("dbCollection not ready, skipping listener setup.");
-        return;
-    }
+    const collectionRef = collection(db, LIVE_COLLECTION_PATH); 
+
+    // We query the collection, order by the latest timestamp, and grab only the newest document.
+    const statsQuery = query(
+        collectionRef,
+        orderBy("timestamp", "desc"), 
+        limit(1)
+    );
     
-    console.log("Setting up Firebase listener...");
+    console.log(`Setting up listener for collection: ${LIVE_COLLECTION_PATH}`);
     
-    onSnapshot(dbCollection, (querySnapshot) => {
-        console.log("Received data from Firebase:", querySnapshot.size, "items");
-        
-        let totalWeight = 0, plasticWeight = 0, metalWeight = 0, organicWeight = 0, glassWeight = 0;
+    onSnapshot(statsQuery, (snapshot) => {
+        if (snapshot.empty) {
+            console.log("No data found. Waiting for first push from analyzer.");
+            return;
+        }
 
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            if (data.weight_kg) {
-                totalWeight += data.weight_kg;
-                // Match these to your Teachable Machine class names
-                switch (data.type) {
-                    case 'Plastic': plasticWeight += data.weight_kg; break;
-                    case 'Metal': metalWeight += data.weight_kg; break;
-                    case 'Organic': organicWeight += data.weight_kg; break;
-                    case 'Glass': glassWeight += data.weight_kg; break;
-                }
-            }
-        });
+        snapshot.forEach((doc) => {
+            // The document contains the fully pre-calculated summary from Colab
+            const liveAggregatedData = doc.data(); 
 
-        // Calculate derived stats
-        const landfillDiversion = totalWeight; 
-        // Note: CO2 calculation may need updating for 'Glass'
-        const co2Saved = (plasticWeight * 2.5) + (metalWeight * 1.8) + (organicWeight * 0.1) + (glassWeight * 0.2); // Added estimated value for glass
-
-        updateDashboard({
-            plasticWeight, metalWeight, organicWeight, glassWeight, totalWeight,
-            landfillDiversion, co2Saved
+            // --- ⚠️ CRUCIAL DEBUGGING STEP ---
+            console.log("✅ LIVE AGGREGATED DATA RECEIVED:", liveAggregatedData);
+            
+            // Pass the aggregated data structure directly to the dashboard updater
+            updateDashboard(liveAggregatedData); 
         });
 
     }, (error) => {
@@ -400,6 +383,53 @@ function setupFirebaseListener() {
     });
 }
 
+
+// ================================================================
+// DASHBOARD UPDATE FUNCTION
+// ================================================================
+
+/**
+ * Updates all charts and metrics using the aggregated JSON structure 
+ * pushed by the Python script.
+ */
+function updateDashboard(data) {
+    // 1. EXTRACT DATA DIRECTLY FROM THE AGGREGATED DOCUMENT
+    const massDistribution = data.mass_distribution_kg; // {plastic: 10.5, metal: 5.2, ...}
+    const percentComposition = data.percent_composition; // {plastic: 60.1, metal: 30.9, ...}
+    const environmentalImpact = data.environmental_impact; 
+
+    const totalWeight = data.total_mass_kg;
+    const co2Saved = environmentalImpact.total_co2_avoided_kg;
+
+    console.log(`Updating dashboard. Total Weight: ${totalWeight.toFixed(2)} kg`);
+
+    // 2. UPDATE CORE METRICS (Example)
+    const totalMassElement = document.getElementById('total-mass-metric');
+    if (totalMassElement) {
+        totalMassElement.innerText = totalWeight.toFixed(2);
+    }
+
+    const co2SavedElement = document.getElementById('co2-saved-metric');
+    if (co2SavedElement) {
+        co2SavedElement.innerText = co2Saved.toFixed(2);
+    }
+    
+    // 3. UPDATE CHART DATA (You would integrate Chart.js here)
+    const chartLabels = Object.keys(percentComposition);
+    const chartData = Object.values(percentComposition);
+    
+    // Example: If you have a Chart.js object named 'myPieChart'
+    // if (myPieChart) {
+    //     myPieChart.data.labels = chartLabels;
+    //     myPieChart.data.datasets[0].data = chartData;
+    //     myPieChart.update();
+    // }
+    
+    // You would loop through massDistribution to update individual weight metrics.
+}
+
+// 4. START THE APPLICATION
+initializeFirebase();
 
 // ================================================================
 // DASHBOARD & UI HELPERS
