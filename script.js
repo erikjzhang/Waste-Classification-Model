@@ -79,6 +79,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Firebase Initialization ---
     initializeFirebase();
+
+    // --- NEW: Preloader Fade Out ---
+    // This runs after all the setup functions above have been called.
+    // We give it a short delay to ensure the 3D scene has a moment
+    // to render its first frame, preventing a "flash" of empty space.
+    gsap.to([".loader-logo", ".loader-spinner"], {
+        opacity: 1,
+        duration: 0.5, // Quick 0.5s fade-in
+        ease: "power1.out",
+        // 2. When fade-in is done, start the fade-out
+        onComplete: () => {
+            // "fades out even more gradually"
+            gsap.to("#preloader", {
+                autoAlpha: 0,    // Fades opacity and sets visibility: hidden
+                duration: 2.0,   // Gradual 2-second fade (was 1.0)
+                delay: 0.5,      // Wait 0.5s before starting the fade-out
+                ease: "power2.inOut"
+            });
+        }
+    });
 });
 
 
@@ -509,17 +529,24 @@ function setupSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             const linkPath = new URL(this.href, window.location.origin).pathname;
-            const currentPath = window.location.pathname;
-            if (linkPath === currentPath && this.hash !== "") {
+            const currentPath = window.location.origin + window.location.pathname;
+            
+            // Check if the link's path is the same as the current page's path
+            // This prevents smooth-scroll from breaking links to other pages (like About Us)
+            // that don't start with a hash.
+            if (linkPath === window.location.pathname && this.hash !== "") {
                 e.preventDefault();
                 const targetElement = document.querySelector(this.hash);
                 if (targetElement) {
                     targetElement.scrollIntoView({ behavior: 'smooth' });
                 }
             }
+            // If linkPath is different (e.g., "About_Webpage/aboutPage.html")
+            // or if there's no hash, the default link behavior will proceed.
         });
     });
 }
+
 
 /**
  * Initializes the side-nav scroll spy logic
