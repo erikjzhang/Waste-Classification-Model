@@ -90,6 +90,7 @@ main {
     font-size: 1.75rem;
     font-weight: 800;
     color: var(--color-accent-cyan);
+    text-decoration: none; /* Added this for cleanup, assuming logo is a link */
 }
 
 .header-links a {
@@ -105,15 +106,7 @@ main {
     color: var(--color-accent-cyan);
 }
 
-.header:not(.scrolled) .header-links a {
-     color: var(--color-text-light);
-}
-.header:not(.scrolled) .header-logo {
-    color: var(--color-accent-cyan);  
-}
-
 /* --- Side Navigation (Glassmorphism) --- */
-
 .side-nav {
     position: fixed;
     left: 20px;
@@ -165,12 +158,6 @@ main {
     top: 50%;
     transform: translateY(-50%);
 }
-
-/* FIX: Ensure the default state properties (width, padding) are always 
-   applied when NOT hovered and NOT active. This explicit definition 
-   will ensure retraction works. 
-*/
-
 
 .side-nav-link:hover span,
 .side-nav-link.active span {
@@ -277,7 +264,6 @@ main {
 /* --- Dashboard Section (Stays Opaque) --- */
 .dashboard-section {
     padding: 5rem 0;
-
     background-color: var(--color-dark-blue);
     position: relative;
     z-index: 20; 
@@ -315,7 +301,6 @@ main {
 
 /* === UPDATED STATS GRID === */
 .stats-grid {
-
     grid-template-columns: minmax(300px, 400px);
     justify-content: center;
     margin-bottom: 3rem;
@@ -361,10 +346,8 @@ main {
 /* === UPDATED STAT STYLES === */
 /* Make the main stat number pop */
 #totalItems {
-    color: var(--color-accent-cyan) !important;
+    color: var(--color-accent-cyan);
 }
-
-
 
 /* --- Chart Container --- */
 .chart-container {
@@ -412,7 +395,6 @@ main {
     /* These are animated by GSAP */
     opacity: 1;
     visibility: visible;
-    /*transition: opacity 0.5s ease;*/
 }
 
 .loader-logo {

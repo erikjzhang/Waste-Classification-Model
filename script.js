@@ -11,15 +11,14 @@
 
 // --- Firebase SDK Imports ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-analytics.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, query, limit, orderBy } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
 // --- Configuration ---
 import { firebaseConfig } from './firebase-config.js'; 
 
 // --- Global App Variables ---
-let app, auth, db, analytics;
+let app, auth, db;
 let userId = null;
 const LIVE_COLLECTION_PATH = "live_conveyor_belt_stats";
 let percentageChart, weightChart;
@@ -45,7 +44,7 @@ const PALETTE = {
 const CHART_COLORS = {
     plastic: '#64ffda',   // accentCyan
     metal:   '#00c2cb',   // accentTeal
-    organic: '#8b4513',   // brown  ← not black anymore
+    organic: '#8b4513',   // brown
     glass:   '#8892b0',   // textDark
     border:  '#0a192f'    // darkBlue
 };
@@ -99,7 +98,6 @@ window.addEventListener('load', () => {
     initializeFirebase(); 
   
     // --- Preloader Fade Out ---
-
     gsap.to("#preloader", {
         autoAlpha: 0,
         duration: 2.0, 
@@ -145,8 +143,8 @@ async function initializeFirebase() {
 }
 
 /**
- * Sets up the onSnapshot listener to get the SINGLE LATEST aggregated document
- * pushed from the Colab/Python backend.
+ * Sets up the onSnapshot listener to aggregate data from the ENTIRE collection.
+ * This sums all documents to get a complete, site-wide count.
  */
 function setupFirebaseListener() {
     const collectionRef = collection(db, LIVE_COLLECTION_PATH); 
@@ -221,7 +219,6 @@ function setupFirebaseListener() {
                 }
 
             } else {
-
                 skippedDocs++;
             }
         });
@@ -242,7 +239,6 @@ function setupFirebaseListener() {
         };
 
         // 4. Build the final aggregated object
-        // **** MODIFIED THIS OBJECT ****
         const finalAggregatedData = {
             total_items: aggTotalItems,
             item_distribution_count: aggCounts,
@@ -276,7 +272,7 @@ function initPercentageChart(ctx) {
             datasets: [{
                 label: 'CO2 Avoided (by %)',
                 data: [0, 0, 0, 0], 
-                rawCO2: [0, 0, 0, 0],
+                rawCO2: [0, 0, 0, 0], // Custom property to hold raw values
                 backgroundColor: [  CHART_COLORS.plastic,
                                     CHART_COLORS.metal,
                                     CHART_COLORS.organic,
@@ -295,13 +291,13 @@ function initPercentageChart(ctx) {
                         font: { family: 'Playfair Display', size: 14 } 
                     } 
                 },
-
                 tooltip: {
                     callbacks: {
                         label: function(context) {
                             const label = context.label || '';
                             const percent = context.parsed;
                             
+                            // Access our custom rawCO2 property
                             const rawCO2 = context.dataset.rawCO2[context.dataIndex];
 
                             const percentString = `${percent}%`;
@@ -326,7 +322,6 @@ function initWeightChart(ctx) {
         data: {
             labels: ['Plastic', 'Metal', 'Organic', 'Glass'],
             datasets: [{
-
                 label: 'Item Count', 
                 data: [0, 0, 0, 0], 
                 backgroundColor: [
@@ -345,7 +340,6 @@ function initWeightChart(ctx) {
             scales: {
                 y: { 
                     beginAtZero: true,
-                    
                     title: {
                         display: true,
                         text: 'Total Items Detected',
@@ -388,28 +382,26 @@ function updateDashboard(data) {
     const organicPercent = percentComposition['organic'] || 0;
     const glassPercent = percentComposition['glass'] || 0;
 
-    // --- NEW: Get raw CO2 values ---
+    // 4. Get raw CO2 values for tooltip
     const plasticCO2 = co2ByCat['plastic'] || 0;
     const metalCO2 = co2ByCat['metal'] || 0;
     const organicCO2 = co2ByCat['organic'] || 0;
     const glassCO2 = co2ByCat['glass'] || 0;
 
-    // 4. Update DOM Metrics (REMOVED old ones)
-    // Assumes you have a new HTML element with id="totalItems"
+    // 5. Update DOM Metrics
     document.getElementById('totalItems').innerText = totalItems; 
     document.getElementById('totalCO2').innerText = totalCO2.toFixed(2) + ' kg';
 
 
-    // 5. Update Charts
+    // 6. Update Charts
     if (percentageChart) {
-        // This chart still works, as percentages are still valid
         percentageChart.data.datasets[0].data = [plasticPercent, metalPercent, organicPercent, glassPercent];
-        // --- NEW: Attach raw CO2 data to the dataset ---
+        // Attach raw CO2 data to the dataset for the tooltip
         percentageChart.data.datasets[0].rawCO2 = [plasticCO2, metalCO2, organicCO2, glassCO2];
         percentageChart.update();
     }
     if (weightChart) {
-        // This now updates with COUNTS instead of WEIGHTS
+        // This now updates with COUNTS
         weightChart.data.datasets[0].data = [plasticCount, metalCount, organicCount, glassCount];
         weightChart.update();
     }
@@ -585,6 +577,8 @@ function setupSmoothScroll() {
         anchor.addEventListener('click', function (e) {
             const linkPath = new URL(this.href, window.location.origin).pathname;
             const currentPath = window.location.pathname;
+            
+            // Ensure the link is for the current page
             if (linkPath === currentPath && this.hash !== "") {
                 e.preventDefault();
                 const targetElement = document.querySelector(this.hash);
@@ -603,7 +597,7 @@ function setupScrollSpy() {
     const sideNav = document.querySelector('.side-nav');
     if (!sideNav) return;
     
-    sections.length = 0;
+    sections.length = 0; // Clear array in case of re-init
     navLinks.clear();
 
     sideNav.querySelectorAll('.side-nav-link').forEach(link => {
@@ -614,6 +608,7 @@ function setupScrollSpy() {
             navLinks.set(section, link);
         }
     });
+    // Sort sections by their top offset
     sections.sort((a, b) => a.offsetTop - b.offsetTop);
 }
 
@@ -624,7 +619,7 @@ function handleSideNavActiveState() {
     if (sections.length === 0) return;
     
     let currentSection = sections[0];
-    const headerOffset = 100; 
+    const headerOffset = 100; // Offset to trigger 'active' state sooner
 
     for (const section of sections) {
         const sectionTop = section.offsetTop;
